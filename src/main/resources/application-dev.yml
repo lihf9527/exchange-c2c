@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /c2c
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://rm-j6czi0t5rf12wyj0i9o.mysql.rds.aliyuncs.com:3306/lex-dev?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: dev#Mysql8562$as!
+  redis:
+    host: 47.52.188.163
+    port: 6379
+    password: f8coin666
+    database: 3
+
+logging:
+  level: debug
+  level.com.exchange.c2c: debug
+  path: logs/
+  file: c2c.log
