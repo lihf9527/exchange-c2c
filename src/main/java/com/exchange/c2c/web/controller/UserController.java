@@ -24,6 +24,7 @@ public class UserController {
     @PostMapping("/login")
     @ApiOperation(value = "用户登录", notes = "创建人: 李海峰")
     public Result<String> login(@Valid LoginForm form) {
-        return Result.success(userService.login(form));
+        String token = userService.login(form);
+        return Result.success(token);
     }
 }

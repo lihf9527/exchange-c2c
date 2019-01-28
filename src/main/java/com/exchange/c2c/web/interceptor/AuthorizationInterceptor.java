@@ -54,6 +54,7 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
         if (new Date().after(claims.getExpiration()))
             throw new BizException("token失效，请重新登录");
 
+        log.info("token解析成功 ==> sub={}, exp={}", claims.getSubject(), claims.getExpiration().toLocaleString());
         UserModel userModel = JSON.parseObject(claims.getSubject(), UserModel.class);
         String redisToken = valueOperations.get("userInfo:" + userModel.getUserId());
         if (StringUtils.isEmpty(redisToken))

@@ -21,4 +21,6 @@ public @interface EnumValue {
     Class<? extends EnumMsg> enumClass();
 
     boolean nullable() default false;
+
+    String delimiter() default ",";
 }
