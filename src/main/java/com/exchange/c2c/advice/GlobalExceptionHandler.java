@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public Result handler(MethodArgumentTypeMismatchException e) {
-        return Result.failure("参数类型不正确", e.getMessage());
+        return Result.failure("'" + e.getName() + "'参数类型不正确", e.getMessage());
     }
 
     @ExceptionHandler
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     public Result handler(BindException e) {
         FieldError fieldError = e.getBindingResult().getFieldErrors().get(0);
         if ("typeMismatch".equals(fieldError.getCode()))
-            return Result.failure("参数类型不正确", fieldError.getDefaultMessage());
+            return Result.failure("'" + fieldError.getField() + "'参数类型不正确", fieldError.getDefaultMessage());
 
         return Result.failure(fieldError.getDefaultMessage());
     }

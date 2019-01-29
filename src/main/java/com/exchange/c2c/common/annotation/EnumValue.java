@@ -18,9 +18,11 @@ public @interface EnumValue {
 
     Class<? extends Payload>[] payload() default {};
 
-    Class<? extends EnumMsg> enumClass();
+    Class<? extends EnumMsg<?>> enumClass();
 
     boolean nullable() default false;
+
+    boolean multiple() default false;
 
     String delimiter() default ",";
 }

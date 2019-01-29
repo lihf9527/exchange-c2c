@@ -48,7 +48,7 @@ public class User {
     /**
      * 创建时间
      */
-    private String createdDate;
+    private LocalDateTime createdDate;
 
     /**
      * 手机
@@ -207,12 +207,12 @@ public class User {
     /**
      * 0普通用户10操盘用户20机构用户30测试40推广70c2c商家90刷单100期权二级代理110期权一级代理
      */
-    private String userType;
+    private Integer userType;
 
     /**
      * 邀请人ID
      */
-    private String invitedByUserId;
+    private Long invitedByUserId;
 
     /**
      * 审核时间
@@ -234,7 +234,7 @@ public class User {
     /**
      * 推荐人id 暂未用到
      */
-    private String refereeId;
+    private Long refereeId;
 
     /**
      * 主账号类型 1 手机 2 邮箱 (默认注册账号为主账号)

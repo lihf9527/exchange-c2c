@@ -1,7 +1,6 @@
 package com.exchange.c2c.web.model;
 
 import com.exchange.c2c.common.annotation.EnumValue;
-import com.exchange.c2c.common.util.ClassUtils;
 import com.exchange.c2c.enums.AdvertTypeEnum;
 import com.exchange.c2c.enums.PayModeEnum;
 import io.swagger.annotations.ApiModel;
@@ -35,11 +34,7 @@ public class CreateAdvertForm {
     private Integer maxValue;
 
     @ApiModelProperty("支付方式, 多种用逗号分隔")
-    @EnumValue(message = "支付方式枚举值不正确", enumClass = PayModeEnum.class)
+    @EnumValue(message = "支付方式枚举值不正确", enumClass = PayModeEnum.class, multiple = true)
     @NotEmpty(message = "支付方式不能为空")
     private String payModes;
-
-    public static void main(String[] args) {
-        System.out.println(ClassUtils.getGenericClass(BBB.class, 0));
-    }
 }

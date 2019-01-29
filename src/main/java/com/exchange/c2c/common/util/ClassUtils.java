@@ -1,7 +1,7 @@
 package com.exchange.c2c.common.util;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 public class ClassUtils {
     private ClassUtils() {
@@ -16,26 +16,31 @@ public class ClassUtils {
         return null;
     }
 
-    public static Type getGenericInterface(Class clazz, int index) {
-        return clazz.getGenericInterfaces()[index];
-    }
-
-    public static Type getActualTypeArgument(ParameterizedType parameterizedType, int index) {
-        return parameterizedType.getActualTypeArguments()[index];
-    }
-
-    public static Class getGenericClass(Class clazz, int index) {
+    public static Class<?> getGenericOfSuperclass(Class<?> clazz, int argsIndex) {
         ParameterizedType pt = (ParameterizedType) clazz.getGenericSuperclass();
-        return (Class) pt.getActualTypeArguments()[index];
+        return (Class<?>) pt.getActualTypeArguments()[argsIndex];
     }
 
-    public static Class getGenericBySuperclass(Class clazz, int index) {
-        ParameterizedType pt = (ParameterizedType) clazz.getGenericSuperclass();
-        return (Class) pt.getActualTypeArguments()[index];
+    public static Class<?> getGenericOfInterface(Class<?> clazz, int interfaceIndex, int argsIndex) {
+        ParameterizedType pt = (ParameterizedType) clazz.getGenericInterfaces()[interfaceIndex];
+        return (Class<?>) pt.getActualTypeArguments()[argsIndex];
     }
 
-    public static <T> T newGenericInstance(Class clazz, int index) {
-        Class<T> genericClass = getGenericClass(clazz, index);
-        return newInstance(genericClass);
+    public static Method getMethod(Class<?> clazz, String name, Class<?>... parameterTypes) {
+        try {
+            return clazz.getMethod(name, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Object invoke(Method method, Object obj, Object... args) {
+        try {
+            return method.invoke(obj, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
