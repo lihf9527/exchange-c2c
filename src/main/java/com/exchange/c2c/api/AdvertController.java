@@ -1,10 +1,10 @@
-package com.exchange.c2c.web.controller;
+package com.exchange.c2c.api;
 
 import com.exchange.c2c.common.Result;
 import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.annotation.LoginUser;
 import com.exchange.c2c.entity.User;
-import com.exchange.c2c.web.model.CreateAdvertForm;
+import com.exchange.c2c.model.CreateAdvertForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;

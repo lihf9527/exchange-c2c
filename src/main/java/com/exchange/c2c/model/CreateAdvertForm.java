@@ -1,4 +1,4 @@
-package com.exchange.c2c.web.model;
+package com.exchange.c2c.model;
 
 import com.exchange.c2c.common.annotation.EnumValue;
 import com.exchange.c2c.enums.AdvertTypeEnum;

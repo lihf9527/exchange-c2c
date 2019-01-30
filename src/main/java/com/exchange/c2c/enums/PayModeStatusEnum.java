@@ -6,11 +6,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum AccountTypeEnum implements EnumMsg<Integer> {
-    Alipay(1, "支付宝"),
-    Wechat(2, "微信"),
-    BANK_CARD(3, "银行卡");
+public enum PayModeStatusEnum implements EnumMsg<String> {
+    DISABLE("0", "禁用"),
+    ENABLE("1", "启用");
 
-    private Integer value;
+    private String value;
     private String name;
 }

@@ -1,8 +1,8 @@
-package com.exchange.c2c.web.controller;
+package com.exchange.c2c.api;
 
 import com.exchange.c2c.common.Result;
 import com.exchange.c2c.service.UserService;
-import com.exchange.c2c.web.model.LoginForm;
+import com.exchange.c2c.model.LoginForm;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.exception.BizException;
 import com.exchange.c2c.common.util.JwtUtils;
-import com.exchange.c2c.web.model.UserModel;
+import com.exchange.c2c.model.UserModel;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

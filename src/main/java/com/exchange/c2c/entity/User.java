@@ -170,8 +170,14 @@ public class User {
      */
     private String phoneArea;
 
+    /**
+     * 谷歌验证码秘钥
+     */
     private String gaSecurityKey;
 
+    /**
+     * 是否开启谷歌验证 0未开启 1已启用
+     */
     private Integer gaEnabled;
 
     /**

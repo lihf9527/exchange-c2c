@@ -1,4 +1,4 @@
-package com.exchange.c2c.web.controller;
+package com.exchange.c2c.api;
 
 import com.exchange.c2c.common.Result;
 import io.swagger.annotations.Api;

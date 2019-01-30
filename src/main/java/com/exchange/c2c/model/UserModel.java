@@ -1,4 +1,4 @@
-package com.exchange.c2c.web.model;
+package com.exchange.c2c.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

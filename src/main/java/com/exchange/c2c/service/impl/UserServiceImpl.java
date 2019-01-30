@@ -8,9 +8,9 @@ import com.exchange.c2c.common.util.JwtUtils;
 import com.exchange.c2c.common.util.PBKDF2Util;
 import com.exchange.c2c.entity.User;
 import com.exchange.c2c.mapper.UserMapper;
+import com.exchange.c2c.model.LoginForm;
+import com.exchange.c2c.model.UserModel;
 import com.exchange.c2c.service.UserService;
-import com.exchange.c2c.web.model.LoginForm;
-import com.exchange.c2c.web.model.UserModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +41,15 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.selectOne(wrapper);
         Assert.notNull(user, "用户不存在");
 
+        boolean valid;
         try {
-            PBKDF2Util.authenticate(form.getPassword(), user.getPassword(), Optional.ofNullable(user.getSignupIp()).orElse("abc"));
+            valid = PBKDF2Util.authenticate(form.getPassword(), user.getPassword(), Optional.ofNullable(user.getSignupIp()).orElse("abc"));
         } catch (Exception e) {
             log.error("加密失败 ==> " + e.getMessage(), e);
             throw new BizException("密码错误");
         }
+
+        Assert.isTrue(valid, "密码错误");
 
         UserModel userModel = new UserModel();
         BeanUtils.copyProperties(user, userModel);
