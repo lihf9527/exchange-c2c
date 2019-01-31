@@ -1,14 +1,19 @@
 package com.exchange.c2c.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.exchange.c2c.common.exception.BizException;
-import com.exchange.c2c.common.util.Assert;
 import com.exchange.c2c.entity.PayMode;
 import com.exchange.c2c.enums.PayModeStatusEnum;
 import com.exchange.c2c.mapper.PayModeMapper;
+import com.exchange.c2c.model.PayModeForm;
 import com.exchange.c2c.service.PayModeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -29,8 +34,6 @@ public class PayModeServiceImpl implements PayModeService {
         if (Objects.isNull(payMode.getId())) {
             payModeMapper.insert(payMode);
         } else {
-            PayMode old = findById(payMode.getId());
-            Assert.isEquals(old.getUserId(), payMode.getUserId(), "非法操作");
             payModeMapper.updateById(payMode);
         }
     }
@@ -38,14 +41,43 @@ public class PayModeServiceImpl implements PayModeService {
     @Override
     @Transactional
     public void enable(Integer id) {
-
+        PayMode temp = new PayMode();
+        temp.setId(id);
+        temp.setStatus(PayModeStatusEnum.ENABLE.getValue());
+        payModeMapper.updateById(temp);
     }
 
     @Override
     @Transactional
     public void disable(Integer id) {
         PayMode temp = new PayMode();
+        temp.setId(id);
         temp.setStatus(PayModeStatusEnum.DISABLE.getValue());
         payModeMapper.updateById(temp);
+    }
+
+    @Override
+    @Transactional
+    public void disableByAccountType(Integer accountType) {
+        PayMode temp = new PayMode();
+        temp.setStatus(PayModeStatusEnum.DISABLE.getValue());
+
+        UpdateWrapper<PayMode> wrapper = new UpdateWrapper<>();
+        wrapper.eq("account_type", accountType);
+
+        payModeMapper.update(temp, wrapper);
+    }
+
+    @Override
+    public IPage<PayMode> findAll(PayModeForm form) {
+        QueryWrapper<PayMode> wrapper = new QueryWrapper<>();
+        if (Objects.nonNull(form.getAccountType())) {
+            wrapper.eq("account_type", form.getAccountType());
+        }
+        if (!StringUtils.isEmpty(form.getStatus())) {
+            wrapper.eq("status", form.getStatus());
+        }
+        wrapper.orderByDesc("status");
+        return payModeMapper.selectPage(new Page<>(form.getPageIndex(), form.getPageSize()), wrapper);
     }
 }
