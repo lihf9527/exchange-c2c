@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 订单表
@@ -103,27 +103,27 @@ public class Order {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 转账时间
      */
-    private Date transferTime;
+    private LocalDateTime transferTime;
 
     /**
      * 取消时间
      */
-    private Date cancelTime;
+    private LocalDateTime cancelTime;
 
     /**
      * 申诉时间
      */
-    private Date appealTime;
+    private LocalDateTime appealTime;
 
     /**
      * 完成时间
      */
-    private Date finishTime;
+    private LocalDateTime finishTime;
 
     /**
      * 状态 1待付款 2待确认 3已取消 4申诉中 5已完成

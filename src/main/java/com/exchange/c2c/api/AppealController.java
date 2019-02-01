@@ -1,25 +1,73 @@
 package com.exchange.c2c.api;
 
 import com.exchange.c2c.common.Result;
+import com.exchange.c2c.common.exception.BizException;
+import com.exchange.c2c.common.util.ApiBeanUtils;
+import com.exchange.c2c.common.util.EnumUtils;
+import com.exchange.c2c.common.util.WebUtils;
+import com.exchange.c2c.entity.Appeal;
+import com.exchange.c2c.entity.Order;
+import com.exchange.c2c.enums.AppealResultEnum;
+import com.exchange.c2c.enums.OrderStatusEnum;
+import com.exchange.c2c.model.CreateAppealForm;
+import com.exchange.c2c.service.AppealService;
+import com.exchange.c2c.service.OrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 @Api(tags = "申诉接口")
 @Validated
 @RestController
 @RequestMapping("/appeal")
 public class AppealController {
+    @Autowired
+    private AppealService appealService;
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/create")
     @ApiOperation(value = "提交申诉", notes = "创建人: 李海峰")
-    public Result<?> create() {
+    public Result<?> create(@Valid CreateAppealForm form) {
+        check(orderService.findById(form.getOrderId()));
 
-        return Result.SUCCESS;
+        val appeal = ApiBeanUtils.copyProperties(form, Appeal::new);
+        appeal.setUserId(WebUtils.getUserId());
+        appeal.setResult(AppealResultEnum.PROCESSING.getValue());
+        appeal.setCreateTime(LocalDateTime.now());
+        appeal.setCreateBy(WebUtils.getUserId());
+        appealService.insert(appeal);
+        return Result.success(appeal.getId());
+    }
+
+    private void check(Order order) {
+        OrderStatusEnum orderStatusEnum = EnumUtils.toEnum(order.getStatus(), OrderStatusEnum.class);
+        switch (Objects.requireNonNull(orderStatusEnum)) {
+            case WAIT_PAY:
+                if (order.getCreateTime().plusHours(1).isAfter(LocalDateTime.now()))
+                    throw new BizException("订单创建不足1个小时,不能申诉");
+                break;
+            case WAIT_CONFIRM:
+                if (order.getTransferTime().plusHours(1).isAfter(LocalDateTime.now()))
+                    throw new BizException("距离确认转账时间不足1个小时，不能申诉");
+                break;
+            case CANCELED:
+                throw new BizException("订单已取消,不能申诉");
+            case APPEAL:
+                throw new BizException("订单申诉中,不能重复申诉");
+            case FINISHED:
+                throw new BizException("订单已完成,不能申诉");
+        }
     }
 
     @GetMapping("/info")

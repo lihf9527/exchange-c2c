@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Api(tags = "支付方式接口")
 @Validated
@@ -44,7 +46,9 @@ public class PayModeController {
     @ApiOperation(value = "添加支付方式", notes = "创建人: 李海峰")
     public Result<Integer> create(@Valid CreatePayModeForm form) {
         PayMode payMode = buildPayMode(form);
+        payMode.setUserId(WebUtils.getUserId());
         payMode.setCreateTime(LocalDateTime.now());
+        payMode.setStatus(PayModeStatusEnum.DISABLE.getValue());
         payModeService.save(payMode);
         return Result.success(payMode.getId());
     }
@@ -62,9 +66,7 @@ public class PayModeController {
         Assert.isTrue(valid, "谷歌验证码错误");
 
         PayMode payMode = ApiBeanUtils.copyProperties(form, PayMode::new);
-        payMode.setUserId(loginUser.getUserId());
         payMode.setUpdateTime(LocalDateTime.now());
-        payMode.setStatus(PayModeStatusEnum.DISABLE.getValue());
         return payMode;
     }
 
@@ -95,7 +97,6 @@ public class PayModeController {
         PayMode payMode = payModeService.findById(id);
         Assert.isEquals(payMode.getUserId(), WebUtils.getUserId(), "非法操作");
         Assert.isEquals(PayModeStatusEnum.DISABLE.getValue(), payMode.getStatus(), "不能重复启用");
-        payModeService.disableByAccountType(payMode.getAccountType());
         payModeService.enable(id);
         return Result.SUCCESS;
     }
@@ -111,20 +112,20 @@ public class PayModeController {
         return Result.SUCCESS;
     }
 
+    @Login
     @PostMapping("/list")
     @ApiOperation(value = "支付方式列表", notes = "创建人: 李海峰")
     public Result<PageList<PayModeModel>> list(@Valid PayModeForm form) {
-        val page = payModeService.findAll(form);
-        val pageList = ApiBeanUtils.convertToPageList(page, e -> ApiBeanUtils.copyProperties(e, PayModeModel::new));
-        return Result.success(pageList);
+        return Result.success(ApiBeanUtils.convertToPageList(payModeService.findAll(form), e -> ApiBeanUtils.copyProperties(e, PayModeModel::new)));
     }
 
     @Login
     @PostMapping("/isEnabled")
     @ApiOperation(value = "支付方式是否启用", notes = "创建人: 李海峰")
-    public Result<?> isEnabled() {
-
-        return Result.SUCCESS;
+    public Result<List<PayModeModel>> isEnabled(String payModes) {
+        val payModeList = payModeService.findEnabled(WebUtils.getUserId(), payModes.split(","));
+        val payModeModels = payModeList.stream().map(e -> ApiBeanUtils.copyProperties(e, PayModeModel::new)).collect(Collectors.toList());
+        return Result.success(payModeModels);
     }
 
     @Login

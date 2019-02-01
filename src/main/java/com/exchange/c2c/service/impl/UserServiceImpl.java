@@ -35,6 +35,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String getFullName(Long userId) {
+        String fullName = findById(userId).getFullName();
+        return fullName == null ? "" : fullName;
+    }
+
+    @Override
     public String login(LoginForm form) {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("EMAIL", form.getUserName()).or().eq("CELL_PHONE", form.getUserName());

@@ -5,7 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.exchange.c2c.common.exception.BizException;
+import com.exchange.c2c.common.util.EnumUtils;
+import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.PayMode;
+import com.exchange.c2c.enums.AccountTypeEnum;
+import com.exchange.c2c.enums.PayModeEnum;
 import com.exchange.c2c.enums.PayModeStatusEnum;
 import com.exchange.c2c.mapper.PayModeMapper;
 import com.exchange.c2c.model.PayModeForm;
@@ -15,8 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PayModeServiceImpl implements PayModeService {
@@ -41,6 +48,9 @@ public class PayModeServiceImpl implements PayModeService {
     @Override
     @Transactional
     public void enable(Integer id) {
+        PayMode payMode = findById(id);
+        disable(payMode.getUserId(), payMode.getAccountType());
+
         PayMode temp = new PayMode();
         temp.setId(id);
         temp.setStatus(PayModeStatusEnum.ENABLE.getValue());
@@ -58,11 +68,12 @@ public class PayModeServiceImpl implements PayModeService {
 
     @Override
     @Transactional
-    public void disableByAccountType(Integer accountType) {
+    public void disable(Long userId, Integer accountType) {
         PayMode temp = new PayMode();
         temp.setStatus(PayModeStatusEnum.DISABLE.getValue());
 
         UpdateWrapper<PayMode> wrapper = new UpdateWrapper<>();
+        wrapper.eq("user_id", userId);
         wrapper.eq("account_type", accountType);
 
         payModeMapper.update(temp, wrapper);
@@ -71,6 +82,7 @@ public class PayModeServiceImpl implements PayModeService {
     @Override
     public IPage<PayMode> findAll(PayModeForm form) {
         QueryWrapper<PayMode> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", WebUtils.getUserId());
         if (Objects.nonNull(form.getAccountType())) {
             wrapper.eq("account_type", form.getAccountType());
         }
@@ -79,5 +91,21 @@ public class PayModeServiceImpl implements PayModeService {
         }
         wrapper.orderByDesc("status");
         return payModeMapper.selectPage(new Page<>(form.getPageIndex(), form.getPageSize()), wrapper);
+    }
+
+    @Override
+    public List<PayMode> findEnabled(Long userId, String... payMode) {
+        List<Integer> accountTypes = Arrays.stream(payMode)
+                .map(e -> EnumUtils.toEnum(e, PayModeEnum.class))
+                .filter(Objects::nonNull)
+                .map(PayModeEnum::getAccountType)
+                .map(AccountTypeEnum::getValue)
+                .collect(Collectors.toList());
+
+        QueryWrapper<PayMode> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        wrapper.eq("status", PayModeStatusEnum.ENABLE.getValue());
+        wrapper.in("account_type", accountTypes);
+        return payModeMapper.selectList(wrapper);
     }
 }
