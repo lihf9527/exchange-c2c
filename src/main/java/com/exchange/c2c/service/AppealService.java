@@ -4,4 +4,6 @@ import com.exchange.c2c.entity.Appeal;
 
 public interface AppealService {
     void insert(Appeal appeal);
+
+    Appeal findByOrderId(Integer orderId);
 }

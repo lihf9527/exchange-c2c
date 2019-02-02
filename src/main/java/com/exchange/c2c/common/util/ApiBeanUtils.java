@@ -32,4 +32,8 @@ public class ApiBeanUtils {
         pageList.setList(page.getRecords().stream().map(mapper).collect(Collectors.toList()));
         return pageList;
     }
+
+    public static <T> PageList<T> convertToPageList(IPage<T> page) {
+        return convertToPageList(page, e -> e);
+    }
 }

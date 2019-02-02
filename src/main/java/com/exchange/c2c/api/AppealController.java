@@ -1,29 +1,31 @@
 package com.exchange.c2c.api;
 
 import com.exchange.c2c.common.Result;
+import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.exception.BizException;
 import com.exchange.c2c.common.util.ApiBeanUtils;
+import com.exchange.c2c.common.util.Assert;
 import com.exchange.c2c.common.util.EnumUtils;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.Appeal;
 import com.exchange.c2c.entity.Order;
 import com.exchange.c2c.enums.AppealResultEnum;
 import com.exchange.c2c.enums.OrderStatusEnum;
+import com.exchange.c2c.model.AppealModel;
 import com.exchange.c2c.model.CreateAppealForm;
 import com.exchange.c2c.service.AppealService;
 import com.exchange.c2c.service.OrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Objects;
 
 @Api(tags = "申诉接口")
@@ -36,6 +38,7 @@ public class AppealController {
     @Autowired
     private OrderService orderService;
 
+    @Login
     @PostMapping("/create")
     @ApiOperation(value = "提交申诉", notes = "创建人: 李海峰")
     public Result<?> create(@Valid CreateAppealForm form) {
@@ -70,10 +73,16 @@ public class AppealController {
         }
     }
 
+    @Login
     @GetMapping("/info")
     @ApiOperation(value = "申诉详情", notes = "创建人: 李海峰")
-    public Result<?> info() {
+    public Result<AppealModel> info(@RequestParam @ApiParam("订单ID") Integer orderId) {
+        val order = orderService.findById(orderId);
+        val validUserIds = Arrays.asList(order.getUserId(), order.getTargetId());
+        Assert.isTrue(validUserIds.contains(WebUtils.getUserId()), "非法操作");
 
-        return Result.SUCCESS;
+        val appeal = appealService.findByOrderId(orderId);
+        val appealModel = ApiBeanUtils.copyProperties(appeal, AppealModel::new);
+        return Result.success(appealModel);
     }
 }
