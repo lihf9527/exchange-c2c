@@ -6,10 +6,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PayModeStatusEnum implements EnumMsg<String> {
-    DISABLE("0", "禁用"),
-    ENABLE("1", "启用");
+public enum PayModeStatusEnum implements EnumMsg<Integer> {
+    DISABLE(0, "禁用"),
+    ENABLE(1, "启用");
 
-    private String value;
+    private Integer value;
     private String name;
 }

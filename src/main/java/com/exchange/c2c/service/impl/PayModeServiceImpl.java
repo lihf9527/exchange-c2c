@@ -49,7 +49,7 @@ public class PayModeServiceImpl implements PayModeService {
     @Transactional
     public void enable(Integer id) {
         PayMode payMode = findById(id);
-        disable(payMode.getUserId(), payMode.getAccountType());
+        disable(payMode.getCreateBy(), payMode.getAccountType());
 
         PayMode temp = new PayMode();
         temp.setId(id);

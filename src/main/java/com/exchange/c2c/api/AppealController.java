@@ -9,7 +9,7 @@ import com.exchange.c2c.common.util.EnumUtils;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.Appeal;
 import com.exchange.c2c.entity.Order;
-import com.exchange.c2c.enums.AppealResultEnum;
+import com.exchange.c2c.enums.AppealStatusEnum;
 import com.exchange.c2c.enums.OrderStatusEnum;
 import com.exchange.c2c.model.AppealModel;
 import com.exchange.c2c.model.CreateAppealForm;
@@ -45,8 +45,8 @@ public class AppealController {
         check(orderService.findById(form.getOrderId()));
 
         val appeal = ApiBeanUtils.copyProperties(form, Appeal::new);
-        appeal.setUserId(WebUtils.getUserId());
-        appeal.setResult(AppealResultEnum.PROCESSING.getValue());
+        appeal.setCreateBy(WebUtils.getUserId());
+        appeal.setStatus(AppealStatusEnum.PROCESSING.getValue());
         appeal.setCreateTime(LocalDateTime.now());
         appeal.setCreateBy(WebUtils.getUserId());
         appealService.insert(appeal);
@@ -61,7 +61,7 @@ public class AppealController {
                     throw new BizException("订单创建不足1个小时,不能申诉");
                 break;
             case WAIT_CONFIRM:
-                if (order.getTransferTime().plusHours(1).isAfter(LocalDateTime.now()))
+                if (order.getPayTime().plusHours(1).isAfter(LocalDateTime.now()))
                     throw new BizException("距离确认转账时间不足1个小时，不能申诉");
                 break;
             case CANCELED:
@@ -78,7 +78,7 @@ public class AppealController {
     @ApiOperation(value = "申诉详情", notes = "创建人: 李海峰")
     public Result<AppealModel> info(@RequestParam @ApiParam("订单ID") Integer orderId) {
         val order = orderService.findById(orderId);
-        val validUserIds = Arrays.asList(order.getUserId(), order.getTargetId());
+        val validUserIds = Arrays.asList(order.getBuyerId(), order.getSellerId());
         Assert.isTrue(validUserIds.contains(WebUtils.getUserId()), "非法操作");
 
         val appeal = appealService.findByOrderId(orderId);

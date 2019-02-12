@@ -7,10 +7,10 @@ import com.exchange.c2c.common.util.ApiBeanUtils;
 import com.exchange.c2c.common.util.Assert;
 import com.exchange.c2c.common.util.RandomUtils;
 import com.exchange.c2c.common.util.WebUtils;
-import com.exchange.c2c.entity.Advertisement;
+import com.exchange.c2c.entity.Advert;
 import com.exchange.c2c.enums.AdvertStatusEnum;
 import com.exchange.c2c.model.*;
-import com.exchange.c2c.service.AdvertisementService;
+import com.exchange.c2c.service.AdvertService;
 import com.exchange.c2c.service.PayModeService;
 import com.exchange.c2c.service.UserService;
 import io.swagger.annotations.Api;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/advert")
 public class AdvertController {
     @Autowired
-    private AdvertisementService advertisementService;
+    private AdvertService advertService;
     @Autowired
     private PayModeService payModeService;
     @Autowired
@@ -42,16 +42,16 @@ public class AdvertController {
     @ApiOperation(value = "新增广告", notes = "创建人: 李海峰")
     public Result<Integer> create(@Valid CreateAdvertForm form) {
         val advertisement = buildAdvertisement(form);
-        advertisement.setUserId(WebUtils.getUserId());
+        advertisement.setCreateBy(WebUtils.getUserId());
         advertisement.setAdvNo(RandomUtils.serialNumber(6));
         advertisement.setCreateTime(LocalDateTime.now());
         advertisement.setStatus(AdvertStatusEnum.DISABLE.getValue());
-        advertisementService.save(advertisement);
+        advertService.save(advertisement);
         return Result.success(advertisement.getId());
     }
 
-    private Advertisement buildAdvertisement(CreateAdvertForm form) {
-        val advertisement = ApiBeanUtils.copyProperties(form, Advertisement::new);
+    private Advert buildAdvertisement(CreateAdvertForm form) {
+        val advertisement = ApiBeanUtils.copyProperties(form, Advert::new);
         advertisement.setUpdateTime(LocalDateTime.now());
         val payModes = form.getPayModes().split(",");
         val payModeList = payModeService.findEnabled(WebUtils.getUserId(), payModes);
@@ -65,9 +65,9 @@ public class AdvertController {
     @PostMapping("/update")
     @ApiOperation(value = "修改广告", notes = "创建人: 李海峰")
     public Result<?> update(@Valid UpdateAdvertForm form) {
-        val advertisement = advertisementService.findById(form.getId());
+        val advertisement = advertService.findById(form.getId());
         Assert.isEquals(advertisement.getId(), WebUtils.getUserId(), "非法操作");
-        advertisementService.save(buildAdvertisement(form));
+        advertService.save(buildAdvertisement(form));
         return Result.SUCCESS;
     }
 
@@ -75,7 +75,7 @@ public class AdvertController {
     @GetMapping("/info")
     @ApiOperation(value = "广告详情", notes = "创建人: 李海峰")
     public Result<AdvertModel> info(@RequestParam @ApiParam("广告ID") Integer id) {
-        val advertisement = advertisementService.findById(id);
+        val advertisement = advertService.findById(id);
         val advertModel = ApiBeanUtils.copyProperties(advertisement, AdvertModel::new);
         return Result.success(advertModel);
     }
@@ -84,15 +84,15 @@ public class AdvertController {
     @PostMapping("/myAds")
     @ApiOperation(value = "我的广告列表", notes = "创建人: 李海峰")
     public Result<PageList<AdvertModel>> myAds(@Valid MyAdsForm form) {
-        return Result.success(ApiBeanUtils.convertToPageList(advertisementService.findAll(form), e -> ApiBeanUtils.copyProperties(e, AdvertModel::new)));
+        return Result.success(ApiBeanUtils.convertToPageList(advertService.findAll(form), e -> ApiBeanUtils.copyProperties(e, AdvertModel::new)));
     }
 
     @PostMapping("/list")
     @ApiOperation(value = "买卖市场广告列表", notes = "创建人: 李海峰")
     public Result<PageList<MarketAdvertModel>> list(@Valid MarketAdvertForm form) {
-        return Result.success(ApiBeanUtils.convertToPageList(advertisementService.findAll(form), e -> {
+        return Result.success(ApiBeanUtils.convertToPageList(advertService.findAll(form), e -> {
             MarketAdvertModel model = ApiBeanUtils.copyProperties(e, MarketAdvertModel::new);
-            model.setSellerName(userService.getFullName(e.getUserId()));
+            model.setSellerName(userService.getFullName(e.getCreateBy()));
             // TODO: 2019/2/1
             model.setCount(0L);
             return model;

@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
  * 广告表
  */
 @Data
-@TableName("c2c_advertisement")
-public class Advertisement {
+@TableName("c2c_advert")
+public class Advert {
     /**
      * 主键ID
      */
@@ -21,19 +21,14 @@ public class Advertisement {
     private Integer id;
 
     /**
-     * 用户ID
-     */
-    private Long userId;
-
-    /**
      * 广告编号
      */
     private String advNo;
 
     /**
-     * 类型: 1购买, 2出售
+     * 类型 1购买 2出售
      */
-    private String type;
+    private Integer type;
 
     /**
      * 单价
@@ -51,14 +46,29 @@ public class Advertisement {
     private Integer maxValue;
 
     /**
-     * 支付方式 1支付宝, 2微信, 3银行卡
+     * 支付方式 1支付宝 2微信 3银行卡
      */
     private String payModes;
 
     /**
-     * 支付方式id,多个用逗号分隔
+     * 支付方式ID
      */
     private String payModeIds;
+
+    /**
+     * 币种编号
+     */
+    private String currencyCode;
+
+    /**
+     * 广告状态 1上架 0下架
+     */
+    private Integer status;
+
+    /**
+     * 创建人ID
+     */
+    private Long createBy;
 
     /**
      * 创建时间
@@ -66,12 +76,12 @@ public class Advertisement {
     private LocalDateTime createTime;
 
     /**
-     * 更新时间
+     * 修改人ID
      */
-    private LocalDateTime updateTime;
+    private Long updateBy;
 
     /**
-     * 状态 1上架 0 下架
+     * 修改时间
      */
-    private String status;
+    private LocalDateTime updateTime;
 }

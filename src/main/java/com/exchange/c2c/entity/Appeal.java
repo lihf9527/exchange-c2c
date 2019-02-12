@@ -20,14 +20,9 @@ public class Appeal {
     private Integer id;
 
     /**
-     * 用户ID
+     * 订单编号
      */
-    private Long userId;
-
-    /**
-     * 订单ID
-     */
-    private Integer orderId;
+    private String orderNo;
 
     /**
      * 标题
@@ -37,17 +32,22 @@ public class Appeal {
     /**
      * 描述
      */
-    private String depict;
+    private String descr;
 
     /**
-     * 凭证: 图片url
+     * 申诉材料、凭证
      */
-    private String voucher;
+    private String materials;
 
     /**
-     * 结果 1处理中 2胜诉 3败诉
+     * 申诉状态 1处理中 2胜诉 3败诉
      */
-    private Integer result;
+    private Integer status;
+
+    /**
+     * 创建人ID 申诉发起者
+     */
+    private Long createBy;
 
     /**
      * 创建时间
@@ -55,17 +55,12 @@ public class Appeal {
     private LocalDateTime createTime;
 
     /**
-     * 创建人
-     */
-    private Long createBy;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
-
-    /**
-     * 修改人
+     * 修改人ID 裁判
      */
     private Long updateBy;
+
+    /**
+     * 修改时间
+     */
+    private LocalDateTime updateTime;
 }

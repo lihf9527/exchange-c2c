@@ -13,7 +13,7 @@ import lombok.Data;
 public class MyAdsForm extends PageForm {
     @EnumValue(message = "广告类型枚举值不正确", enumClass = AdvertTypeEnum.class, nullable = true)
     @ApiModelProperty("广告类型 1购买 2出售")
-    private String type;
+    private Integer type;
 
     @EnumValue(message = "广告状态枚举值不正确", enumClass = AdvertStatusEnum.class, nullable = true)
     @ApiModelProperty("广告状态 1上架 0下架")

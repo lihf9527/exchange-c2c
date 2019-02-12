@@ -1,7 +1,5 @@
 package com.exchange.c2c.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -16,28 +14,22 @@ public class PayMode {
     /**
      * 主键ID
      */
-    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 用户ID
-     */
-    private Long userId;
-
-    /**
-     * 姓名
-     */
-    private String userName;
-
-    /**
-     * 账户类型 1支付宝 2微信 3银行卡
+     * 账号类型 1支付宝 2微信 3银行卡
      */
     private Integer accountType;
 
     /**
-     * 账号/银行卡号
+     * 账户名
      */
-    private String account;
+    private String accountName;
+
+    /**
+     * 账号
+     */
+    private String accountNumber;
 
     /**
      * 二维码
@@ -55,17 +47,27 @@ public class PayMode {
     private String branchBank;
 
     /**
+     * 状态 0禁用 1启用
+     */
+    private Integer status;
+
+    /**
+     * 创建人ID
+     */
+    private Long createBy;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;
 
     /**
-     * 更新时间
+     * 修改人ID
      */
-    private LocalDateTime updateTime;
+    private Long updateBy;
 
     /**
-     * 状态 0禁用1启用
+     * 修改时间
      */
-    private String status;
+    private LocalDateTime updateTime;
 }

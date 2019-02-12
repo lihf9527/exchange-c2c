@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum AppealResultEnum implements EnumMsg<Integer> {
+public enum AppealStatusEnum implements EnumMsg<Integer> {
     PROCESSING(1, "处理中"),
     SUCCESSFUL(2, "胜诉"),
     FAILURE(3, "败诉");

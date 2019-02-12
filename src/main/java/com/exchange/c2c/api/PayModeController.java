@@ -46,7 +46,7 @@ public class PayModeController {
     @ApiOperation(value = "添加支付方式", notes = "创建人: 李海峰")
     public Result<Integer> create(@Valid CreatePayModeForm form) {
         PayMode payMode = buildPayMode(form);
-        payMode.setUserId(WebUtils.getUserId());
+        payMode.setCreateBy(WebUtils.getUserId());
         payMode.setCreateTime(LocalDateTime.now());
         payMode.setStatus(PayModeStatusEnum.DISABLE.getValue());
         payModeService.save(payMode);
@@ -75,7 +75,7 @@ public class PayModeController {
     @ApiOperation(value = "修改支付方式", notes = "创建人: 李海峰")
     public Result<?> update(@Valid UpdatePayModeForm form) {
         PayMode old = payModeService.findById(form.getId());
-        Assert.isEquals(old.getUserId(), WebUtils.getUserId(), "非法操作");
+        Assert.isEquals(old.getCreateBy(), WebUtils.getUserId(), "非法操作");
         payModeService.save(buildPayMode(form));
         return Result.SUCCESS;
     }
@@ -85,7 +85,7 @@ public class PayModeController {
     @ApiOperation(value = "支付方式详情", notes = "创建人: 李海峰")
     public Result<PayModeModel> info(@RequestParam @ApiParam("支付方式ID") Integer id) {
         val payMode = payModeService.findById(id);
-        Assert.isEquals(payMode.getUserId(), WebUtils.getUserId(), "非法操作");
+        Assert.isEquals(payMode.getCreateBy(), WebUtils.getUserId(), "非法操作");
         val model = ApiBeanUtils.copyProperties(payMode, PayModeModel::new);
         return Result.success(model);
     }
@@ -95,7 +95,7 @@ public class PayModeController {
     @ApiOperation(value = "启用支付方式", notes = "创建人: 李海峰")
     public Result<?> enable(@RequestParam @ApiParam("支付方式ID") Integer id) {
         PayMode payMode = payModeService.findById(id);
-        Assert.isEquals(payMode.getUserId(), WebUtils.getUserId(), "非法操作");
+        Assert.isEquals(payMode.getCreateBy(), WebUtils.getUserId(), "非法操作");
         Assert.isEquals(PayModeStatusEnum.DISABLE.getValue(), payMode.getStatus(), "不能重复启用");
         payModeService.enable(id);
         return Result.SUCCESS;
@@ -106,7 +106,7 @@ public class PayModeController {
     @ApiOperation(value = "禁用支付方式", notes = "创建人: 李海峰")
     public Result<?> disable(@RequestParam @ApiParam("支付方式ID") Integer id) {
         PayMode payMode = payModeService.findById(id);
-        Assert.isEquals(payMode.getUserId(), WebUtils.getUserId(), "非法操作");
+        Assert.isEquals(payMode.getCreateBy(), WebUtils.getUserId(), "非法操作");
         Assert.isEquals(PayModeStatusEnum.ENABLE.getValue(), payMode.getStatus(), "不能重复禁用");
         payModeService.disable(id);
         return Result.SUCCESS;
@@ -129,9 +129,9 @@ public class PayModeController {
     }
 
     @Login
-    @PostMapping("/transferMode")
+    @PostMapping("/all")
     @ApiOperation(value = "转账方式列表", notes = "创建人: 李海峰")
-    public Result<?> transferMode() {
+    public Result<?> all() {
 
         return Result.SUCCESS;
     }

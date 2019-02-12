@@ -21,69 +21,9 @@ public class Order {
     private Integer id;
 
     /**
-     * 用户ID
-     */
-    private Long userId;
-
-    /**
-     * 交易对象ID
-     */
-    private Long targetId;
-
-    /**
-     * 广告ID
-     */
-    private Integer advId;
-
-    /**
      * 订单编号
      */
     private String orderNo;
-
-    /**
-     * 订单类型 1购买2出售
-     */
-    private String orderType;
-
-    /**
-     * 支付方式 1支付宝 2微信 3银行卡
-     */
-    private String payMode;
-
-    /**
-     * 转账方式 1支付宝 2微信 3银行卡
-     */
-    private String transferMode;
-
-    /**
-     * 转账凭证url
-     */
-    private String transferVoucher;
-
-    /**
-     * 账户名
-     */
-    private String accountName;
-
-    /**
-     * 账号
-     */
-    private String account;
-
-    /**
-     * 二维码
-     */
-    private String qrCode;
-
-    /**
-     * 开户银行
-     */
-    private String bank;
-
-    /**
-     * 开户支行
-     */
-    private String branchBank;
 
     /**
      * 单价
@@ -93,7 +33,7 @@ public class Order {
     /**
      * 数量
      */
-    private BigDecimal amount;
+    private BigDecimal quantity;
 
     /**
      * 总价
@@ -101,14 +41,54 @@ public class Order {
     private BigDecimal totalPrice;
 
     /**
+     * 币种编号
+     */
+    private String currencyCode;
+
+    /**
+     * 卖家收款方式 1支付宝 2微信 3银行卡
+     */
+    private Integer sellerPayMode;
+
+    /**
+     * 买家支付方式 1支付宝 2微信 3银行卡
+     */
+    private Integer buyerPayMode;
+
+    /**
+     * 买家支付凭证
+     */
+    private String buyerPayVoucher;
+
+    /**
+     * 状态 1待支付 2待确认 3已取消 4申诉中 5已完成
+     */
+    private Integer status;
+
+    /**
+     * 买家ID
+     */
+    private Long buyerId;
+
+    /**
+     * 卖家ID
+     */
+    private Long sellerId;
+
+    /**
+     * 订单发起人ID
+     */
+    private Long createBy;
+
+    /**
      * 创建时间
      */
     private LocalDateTime createTime;
 
     /**
-     * 转账时间
+     * 付款时间
      */
-    private LocalDateTime transferTime;
+    private LocalDateTime payTime;
 
     /**
      * 取消时间
@@ -124,9 +104,4 @@ public class Order {
      * 完成时间
      */
     private LocalDateTime finishTime;
-
-    /**
-     * 状态 1待付款 2待确认 3已取消 4申诉中 5已完成
-     */
-    private Integer status;
 }

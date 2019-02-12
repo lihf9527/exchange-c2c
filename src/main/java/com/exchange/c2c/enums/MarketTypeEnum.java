@@ -6,10 +6,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum MarketTypeEnum implements EnumMsg<String> {
-    SELL("1", "出售"),
-    BUY("2", "购买");
+public enum MarketTypeEnum implements EnumMsg<Integer> {
+    SELL(1, "出售"),
+    BUY(2, "购买");
 
-    private String value;
+    private Integer value;
     private String name;
 }

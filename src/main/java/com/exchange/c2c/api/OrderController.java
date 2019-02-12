@@ -48,9 +48,9 @@ public class OrderController {
     }
 
     @Login
-    @PostMapping("/receive/confirm")
+    @PostMapping("/receipts/confirm")
     @ApiOperation(value = "确认收款", notes = "创建人: 李海峰")
-    public Result<?> receiveConfirm() {
+    public Result<?> receiptsConfirm() {
 
         return Result.SUCCESS;
     }

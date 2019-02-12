@@ -6,10 +6,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum AdvertStatusEnum implements EnumMsg<String> {
-    ENABLE("1", "上架"),
-    DISABLE("0", "下架");
+public enum AdvertStatusEnum implements EnumMsg<Integer> {
+    ENABLE(1, "上架"),
+    DISABLE(0, "下架");
 
-    private String value;
+    private Integer value;
     private String name;
 }

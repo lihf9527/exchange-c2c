@@ -16,9 +16,9 @@ import java.math.BigDecimal;
 @ApiModel
 public class CreateAdvertForm {
     @EnumValue(message = "广告类型枚举值不正确", enumClass = AdvertTypeEnum.class)
-    @NotEmpty(message = "广告类型不能为空")
+    @NotNull(message = "广告类型不能为空")
     @ApiModelProperty("广告类型 1 - 购买, 2 - 出售")
-    private String type;
+    private Integer type;
 
     @Digits(message = "价格只能输入两位小数", integer = Integer.MAX_VALUE, fraction = 2)
     @NotNull(message = "单价不能为空")
