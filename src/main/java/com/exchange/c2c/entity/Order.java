@@ -48,12 +48,12 @@ public class Order {
     /**
      * 卖家收款方式 1支付宝 2微信 3银行卡
      */
-    private Integer sellerPayMode;
+    private String sellerPayMode;
 
     /**
      * 买家支付方式 1支付宝 2微信 3银行卡
      */
-    private Integer buyerPayMode;
+    private String buyerPayMode;
 
     /**
      * 买家支付凭证

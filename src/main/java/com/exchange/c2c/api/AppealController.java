@@ -42,7 +42,7 @@ public class AppealController {
     @PostMapping("/create")
     @ApiOperation(value = "提交申诉", notes = "创建人: 李海峰")
     public Result<?> create(@Valid CreateAppealForm form) {
-        check(orderService.findById(form.getOrderId()));
+        verify(orderService.findById(form.getOrderId()));
 
         val appeal = ApiBeanUtils.copyProperties(form, Appeal::new);
         appeal.setCreateBy(WebUtils.getUserId());
@@ -53,7 +53,7 @@ public class AppealController {
         return Result.success(appeal.getId());
     }
 
-    private void check(Order order) {
+    private void verify(Order order) {
         OrderStatusEnum orderStatusEnum = EnumUtils.toEnum(order.getStatus(), OrderStatusEnum.class);
         switch (Objects.requireNonNull(orderStatusEnum)) {
             case WAIT_PAY:

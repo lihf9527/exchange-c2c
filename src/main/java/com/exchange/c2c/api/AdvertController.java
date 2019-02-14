@@ -11,6 +11,7 @@ import com.exchange.c2c.entity.Advert;
 import com.exchange.c2c.enums.AdvertStatusEnum;
 import com.exchange.c2c.model.*;
 import com.exchange.c2c.service.AdvertService;
+import com.exchange.c2c.service.OrderService;
 import com.exchange.c2c.service.PayModeService;
 import com.exchange.c2c.service.UserService;
 import io.swagger.annotations.Api;
@@ -36,6 +37,8 @@ public class AdvertController {
     private PayModeService payModeService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private OrderService orderService;
 
     @Login
     @PostMapping("/create")
@@ -91,11 +94,10 @@ public class AdvertController {
     @ApiOperation(value = "买卖市场广告列表", notes = "创建人: 李海峰")
     public Result<PageList<MarketAdvertDTO>> list(@Valid MarketAdvertForm form) {
         return Result.success(ApiBeanUtils.convertToPageList(advertService.findAll(form), e -> {
-            MarketAdvertDTO model = ApiBeanUtils.copyProperties(e, MarketAdvertDTO::new);
-            model.setSellerName(userService.getFullName(e.getCreateBy()));
-            // TODO: 2019/2/1
-            model.setCount(0L);
-            return model;
+            MarketAdvertDTO dto = ApiBeanUtils.copyProperties(e, MarketAdvertDTO::new);
+            dto.setSellerName(userService.getFullName(e.getCreateBy()));
+            dto.setCount(orderService.countFinishedOrders(e.getCreateBy(), e.getType()));
+            return dto;
         }));
     }
 }

@@ -94,8 +94,8 @@ public class PayModeServiceImpl implements PayModeService {
     }
 
     @Override
-    public List<PayMode> findEnabled(Long userId, String... payMode) {
-        List<Integer> accountTypes = Arrays.stream(payMode)
+    public List<PayMode> findEnabled(Long userId, String... payModes) {
+        List<Integer> accountTypes = Arrays.stream(payModes)
                 .map(e -> EnumUtils.toEnum(e, PayModeEnum.class))
                 .filter(Objects::nonNull)
                 .map(PayModeEnum::getAccountType)

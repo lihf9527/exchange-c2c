@@ -8,14 +8,19 @@ import com.exchange.c2c.common.exception.BizException;
 import com.exchange.c2c.common.util.EnumUtils;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.Order;
+import com.exchange.c2c.enums.AdvertTypeEnum;
+import com.exchange.c2c.enums.OrderStatusEnum;
 import com.exchange.c2c.enums.TradingTypeEnum;
 import com.exchange.c2c.mapper.OrderMapper;
+import com.exchange.c2c.model.PaymentConfirmForm;
 import com.exchange.c2c.model.QueryOrderForm;
 import com.exchange.c2c.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -51,5 +56,40 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return orderMapper.selectPage(new Page<>(form.getPageIndex(), form.getPageSize()), wrapper);
+    }
+
+    @Override
+    public long countTodayCancelledOrders(Long userId) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("buyer_id", userId);
+        wrapper.eq("create_by", userId);
+        wrapper.eq("status", OrderStatusEnum.CANCELED.getValue());
+        wrapper.ge("cancel_time", LocalDate.now());
+        wrapper.lt("cancel_time", LocalDate.now().plusDays(1));
+        return orderMapper.selectCount(wrapper);
+    }
+
+    @Override
+    public long countFinishedOrders(Long userId, Integer advertType) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.ne("create_by", userId);
+        wrapper.eq("status", OrderStatusEnum.FINISHED.getValue());
+        if (Objects.equals(AdvertTypeEnum.BUY.getValue(), advertType)) {
+            wrapper.eq("buyer_id", userId);
+        } else {
+            wrapper.eq("seller_id", userId);
+        }
+        return orderMapper.selectCount(wrapper);
+    }
+
+    @Override
+    public void confirm(PaymentConfirmForm form) {
+        Order order = new Order();
+        order.setId(form.getId());
+        order.setBuyerPayMode(form.getPayMode());
+        order.setBuyerPayVoucher(form.getPayVoucher());
+        order.setPayTime(LocalDateTime.now());
+        order.setStatus(OrderStatusEnum.WAIT_CONFIRM.getValue());
+        orderMapper.updateById(order);
     }
 }
