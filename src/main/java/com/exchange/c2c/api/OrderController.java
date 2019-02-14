@@ -1,32 +1,57 @@
 package com.exchange.c2c.api;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.exchange.c2c.common.Result;
 import com.exchange.c2c.common.annotation.Login;
+import com.exchange.c2c.common.page.PageList;
+import com.exchange.c2c.common.util.ApiBeanUtils;
+import com.exchange.c2c.common.util.WebUtils;
+import com.exchange.c2c.entity.Order;
+import com.exchange.c2c.enums.CurrentOrderStatusEnum;
+import com.exchange.c2c.enums.HistoryOrderStatusEnum;
+import com.exchange.c2c.enums.TradingTypeEnum;
+import com.exchange.c2c.model.CreateOrderForm;
+import com.exchange.c2c.model.OrderDTO;
+import com.exchange.c2c.model.QueryOrderForm;
+import com.exchange.c2c.service.AdvertService;
+import com.exchange.c2c.service.OrderService;
+import com.exchange.c2c.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.util.Objects;
 
 @Api(tags = "订单接口")
 @Validated
 @RestController
 @RequestMapping("/order")
 public class OrderController {
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private AdvertService advertService;
+    @Autowired
+    private UserService userService;
 
     @Login
     @PostMapping("/create")
     @ApiOperation(value = "提交订单", notes = "创建人: 李海峰")
-    public Result<?> create() {
-
+    public Result<?> create(@Valid CreateOrderForm form) {
+        val advert = advertService.findById(form.getAdvId());
         return Result.SUCCESS;
     }
 
     @Login
     @PostMapping("/info")
     @ApiOperation(value = "订单详情", notes = "创建人: 李海峰")
-    public Result<?> info() {
+    public Result<?> info(Integer id) {
 
         return Result.SUCCESS;
     }
@@ -34,7 +59,7 @@ public class OrderController {
     @Login
     @PostMapping("/cancel")
     @ApiOperation(value = "取消订单", notes = "创建人: 李海峰")
-    public Result<?> cancel() {
+    public Result<?> cancel(Integer id) {
 
         return Result.SUCCESS;
     }
@@ -50,24 +75,40 @@ public class OrderController {
     @Login
     @PostMapping("/receipts/confirm")
     @ApiOperation(value = "确认收款", notes = "创建人: 李海峰")
-    public Result<?> receiptsConfirm() {
+    public Result<?> receiptsConfirm(Integer id) {
 
         return Result.SUCCESS;
     }
 
     @Login
     @PostMapping("/unfinished")
-    @ApiOperation(value = "", notes = "创建人: 李海峰")
+    @ApiOperation(value = "未完成的订单", notes = "创建人: 李海峰")
     public Result<?> unfinished() {
 
         return Result.SUCCESS;
     }
 
     @Login
-    @PostMapping("/list")
-    @ApiOperation(value = "", notes = "创建人: 李海峰")
-    public Result<?> list() {
+    @PostMapping("/current")
+    @ApiOperation(value = "当前订单", notes = "创建人: 李海峰")
+    public Result<PageList<OrderDTO>> current(@Validated(CurrentOrderStatusEnum.class) QueryOrderForm form) {
+        return Result.success(convertToPageList(orderService.findAll(form, CurrentOrderStatusEnum.class)));
+    }
 
-        return Result.SUCCESS;
+    @Login
+    @PostMapping("/history")
+    @ApiOperation(value = "历史订单", notes = "创建人: 李海峰")
+    public Result<PageList<OrderDTO>> history(@Validated(HistoryOrderStatusEnum.class) QueryOrderForm form) {
+        return Result.success(convertToPageList(orderService.findAll(form, HistoryOrderStatusEnum.class)));
+    }
+
+    private PageList<OrderDTO> convertToPageList(IPage<Order> page) {
+        return ApiBeanUtils.convertToPageList(page, order -> {
+            boolean isBuyer = Objects.equals(order.getBuyerId(), WebUtils.getUserId());// 当前登录用户是否是买方
+            OrderDTO dto = ApiBeanUtils.copyProperties(order, OrderDTO::new);
+            dto.setType(isBuyer ? TradingTypeEnum.BUY.getValue() : TradingTypeEnum.SELL.getValue());
+            dto.setTargetName(userService.getFullName(isBuyer ? order.getSellerId() : order.getBuyerId()));
+            return dto;
+        });
     }
 }

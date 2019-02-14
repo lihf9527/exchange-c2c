@@ -23,8 +23,12 @@ public class EnumUtils {
         return new ArrayList<>(getEnumMsgMap(enumClass).values());
     }
 
-    public static <E extends EnumMsg<?>, V> String getEnumName(V value, Class<E> enumClass) {
+    public static <E extends EnumMsg<?>, V> String getName(V value, Class<E> enumClass) {
         return toEnumMsg(value, enumClass).getName();
+    }
+
+    public static <E extends EnumMsg<V>, V> List<V> getValues(Class<E> enumClass) {
+        return getEnums(enumClass).stream().map(EnumMsg::getValue).collect(Collectors.toList());
     }
 
     public static <E extends EnumMsg<?>, V> boolean isValid(V value, Class<E> enumClass) {

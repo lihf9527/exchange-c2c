@@ -9,7 +9,7 @@ import com.exchange.c2c.common.util.PBKDF2Util;
 import com.exchange.c2c.entity.User;
 import com.exchange.c2c.mapper.UserMapper;
 import com.exchange.c2c.model.LoginForm;
-import com.exchange.c2c.model.UserModel;
+import com.exchange.c2c.model.UserDTO;
 import com.exchange.c2c.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -57,10 +57,10 @@ public class UserServiceImpl implements UserService {
 
         Assert.isTrue(valid, "密码错误");
 
-        UserModel userModel = new UserModel();
-        BeanUtils.copyProperties(user, userModel);
-        userModel.setGaSecurityKey("");
-        String token = JwtUtils.createToken(JSON.toJSONString(userModel), 60 * 30);
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(user, userDTO);
+        userDTO.setGaSecurityKey("");
+        String token = JwtUtils.createToken(JSON.toJSONString(userDTO), 60 * 30);
         valueOperations.set("userInfo:" + user.getUserId(), token, 30, TimeUnit.MINUTES);
         return token;
     }

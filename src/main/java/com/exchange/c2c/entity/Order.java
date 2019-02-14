@@ -61,7 +61,7 @@ public class Order {
     private String buyerPayVoucher;
 
     /**
-     * 状态 1待支付 2待确认 3已取消 4申诉中 5已完成
+     * 订单状态 1待支付 2待确认 3已取消 4申诉中 5已完成
      */
     private Integer status;
 

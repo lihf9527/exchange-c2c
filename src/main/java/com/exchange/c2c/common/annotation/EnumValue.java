@@ -9,6 +9,7 @@ import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
+@Repeatable(EnumValue.List.class)
 @Documented
 @Constraint(validatedBy = {EnumValueValidator.class})
 public @interface EnumValue {
@@ -25,4 +26,11 @@ public @interface EnumValue {
     boolean multiple() default false;
 
     String delimiter() default ",";
+
+    @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @interface List {
+        EnumValue[] value();
+    }
 }

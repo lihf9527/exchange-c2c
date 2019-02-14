@@ -10,7 +10,7 @@ import com.exchange.c2c.enums.AccountTypeEnum;
 import com.exchange.c2c.enums.PayModeStatusEnum;
 import com.exchange.c2c.model.CreatePayModeForm;
 import com.exchange.c2c.model.PayModeForm;
-import com.exchange.c2c.model.PayModeModel;
+import com.exchange.c2c.model.PayModeDTO;
 import com.exchange.c2c.model.UpdatePayModeForm;
 import com.exchange.c2c.service.GoogleAuthService;
 import com.exchange.c2c.service.PayModeService;
@@ -83,10 +83,10 @@ public class PayModeController {
     @Login
     @PostMapping("/info")
     @ApiOperation(value = "支付方式详情", notes = "创建人: 李海峰")
-    public Result<PayModeModel> info(@RequestParam @ApiParam("支付方式ID") Integer id) {
+    public Result<PayModeDTO> info(@RequestParam @ApiParam("支付方式ID") Integer id) {
         val payMode = payModeService.findById(id);
         Assert.isEquals(payMode.getCreateBy(), WebUtils.getUserId(), "非法操作");
-        val model = ApiBeanUtils.copyProperties(payMode, PayModeModel::new);
+        val model = ApiBeanUtils.copyProperties(payMode, PayModeDTO::new);
         return Result.success(model);
     }
 
@@ -115,16 +115,16 @@ public class PayModeController {
     @Login
     @PostMapping("/list")
     @ApiOperation(value = "支付方式列表", notes = "创建人: 李海峰")
-    public Result<PageList<PayModeModel>> list(@Valid PayModeForm form) {
-        return Result.success(ApiBeanUtils.convertToPageList(payModeService.findAll(form), e -> ApiBeanUtils.copyProperties(e, PayModeModel::new)));
+    public Result<PageList<PayModeDTO>> list(@Valid PayModeForm form) {
+        return Result.success(ApiBeanUtils.convertToPageList(payModeService.findAll(form), e -> ApiBeanUtils.copyProperties(e, PayModeDTO::new)));
     }
 
     @Login
     @PostMapping("/isEnabled")
     @ApiOperation(value = "支付方式是否启用", notes = "创建人: 李海峰")
-    public Result<List<PayModeModel>> isEnabled(String payModes) {
+    public Result<List<PayModeDTO>> isEnabled(String payModes) {
         val payModeList = payModeService.findEnabled(WebUtils.getUserId(), payModes.split(","));
-        val payModeModels = payModeList.stream().map(e -> ApiBeanUtils.copyProperties(e, PayModeModel::new)).collect(Collectors.toList());
+        val payModeModels = payModeList.stream().map(e -> ApiBeanUtils.copyProperties(e, PayModeDTO::new)).collect(Collectors.toList());
         return Result.success(payModeModels);
     }
 

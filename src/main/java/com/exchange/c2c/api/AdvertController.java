@@ -74,24 +74,24 @@ public class AdvertController {
     @Login
     @GetMapping("/info")
     @ApiOperation(value = "广告详情", notes = "创建人: 李海峰")
-    public Result<AdvertModel> info(@RequestParam @ApiParam("广告ID") Integer id) {
+    public Result<AdvertDTO> info(@RequestParam @ApiParam("广告ID") Integer id) {
         val advertisement = advertService.findById(id);
-        val advertModel = ApiBeanUtils.copyProperties(advertisement, AdvertModel::new);
+        val advertModel = ApiBeanUtils.copyProperties(advertisement, AdvertDTO::new);
         return Result.success(advertModel);
     }
 
     @Login
     @PostMapping("/myAds")
     @ApiOperation(value = "我的广告列表", notes = "创建人: 李海峰")
-    public Result<PageList<AdvertModel>> myAds(@Valid MyAdsForm form) {
-        return Result.success(ApiBeanUtils.convertToPageList(advertService.findAll(form), e -> ApiBeanUtils.copyProperties(e, AdvertModel::new)));
+    public Result<PageList<AdvertDTO>> myAds(@Valid MyAdsForm form) {
+        return Result.success(ApiBeanUtils.convertToPageList(advertService.findAll(form), e -> ApiBeanUtils.copyProperties(e, AdvertDTO::new)));
     }
 
     @PostMapping("/list")
     @ApiOperation(value = "买卖市场广告列表", notes = "创建人: 李海峰")
-    public Result<PageList<MarketAdvertModel>> list(@Valid MarketAdvertForm form) {
+    public Result<PageList<MarketAdvertDTO>> list(@Valid MarketAdvertForm form) {
         return Result.success(ApiBeanUtils.convertToPageList(advertService.findAll(form), e -> {
-            MarketAdvertModel model = ApiBeanUtils.copyProperties(e, MarketAdvertModel::new);
+            MarketAdvertDTO model = ApiBeanUtils.copyProperties(e, MarketAdvertDTO::new);
             model.setSellerName(userService.getFullName(e.getCreateBy()));
             // TODO: 2019/2/1
             model.setCount(0L);

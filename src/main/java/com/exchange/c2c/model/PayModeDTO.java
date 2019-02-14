@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @ApiModel
-public class PayModeModel {
+public class PayModeDTO {
     @ApiModelProperty("支付方式ID")
     private Integer id;
 

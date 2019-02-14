@@ -11,7 +11,7 @@ import com.exchange.c2c.entity.Appeal;
 import com.exchange.c2c.entity.Order;
 import com.exchange.c2c.enums.AppealStatusEnum;
 import com.exchange.c2c.enums.OrderStatusEnum;
-import com.exchange.c2c.model.AppealModel;
+import com.exchange.c2c.model.AppealDTO;
 import com.exchange.c2c.model.CreateAppealForm;
 import com.exchange.c2c.service.AppealService;
 import com.exchange.c2c.service.OrderService;
@@ -76,13 +76,13 @@ public class AppealController {
     @Login
     @GetMapping("/info")
     @ApiOperation(value = "申诉详情", notes = "创建人: 李海峰")
-    public Result<AppealModel> info(@RequestParam @ApiParam("订单ID") Integer orderId) {
+    public Result<AppealDTO> info(@RequestParam @ApiParam("订单ID") Integer orderId) {
         val order = orderService.findById(orderId);
         val validUserIds = Arrays.asList(order.getBuyerId(), order.getSellerId());
         Assert.isTrue(validUserIds.contains(WebUtils.getUserId()), "非法操作");
 
         val appeal = appealService.findByOrderId(orderId);
-        val appealModel = ApiBeanUtils.copyProperties(appeal, AppealModel::new);
+        val appealModel = ApiBeanUtils.copyProperties(appeal, AppealDTO::new);
         return Result.success(appealModel);
     }
 }

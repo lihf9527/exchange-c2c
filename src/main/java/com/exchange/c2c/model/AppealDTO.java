@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @ApiModel
-public class AppealModel {
+public class AppealDTO {
     @ApiModelProperty("申诉标题")
     private String title;
 

@@ -3,8 +3,10 @@ package com.exchange.c2c.web.interceptor;
 import com.alibaba.fastjson.JSON;
 import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.exception.BizException;
+import com.exchange.c2c.common.util.Assert;
 import com.exchange.c2c.common.util.JwtUtils;
-import com.exchange.c2c.model.UserModel;
+import com.exchange.c2c.common.util.WebUtils;
+import com.exchange.c2c.model.UserDTO;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,7 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         if (!(handler instanceof HandlerMethod))
             return true;
 
@@ -55,8 +57,8 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
             throw new BizException("token失效，请重新登录");
 
         log.info("token解析成功 ==> sub={}, exp={}", claims.getSubject(), claims.getExpiration().toLocaleString());
-        UserModel userModel = JSON.parseObject(claims.getSubject(), UserModel.class);
-        String redisToken = valueOperations.get("userInfo:" + userModel.getUserId());
+        UserDTO userDTO = JSON.parseObject(claims.getSubject(), UserDTO.class);
+        String redisToken = valueOperations.get("userInfo:" + userDTO.getUserId());
         if (StringUtils.isEmpty(redisToken))
             throw new BizException("token失效，请重新登录");
 
@@ -64,7 +66,9 @@ public class AuthorizationInterceptor extends HandlerInterceptorAdapter {
             throw new BizException("已在另一处登录");
 
         //设置userId到request里，后续根据userId，获取用户信息
-        request.setAttribute(USER_KEY, userModel.getUserId());
+        request.setAttribute(USER_KEY, userDTO.getUserId());
+
+        Assert.isEquals(3, WebUtils.getLoginUser().getVerifiedStatus(), "未实名认证");
 
         return true;
     }
