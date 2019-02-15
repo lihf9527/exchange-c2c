@@ -6,8 +6,10 @@ import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.page.PageList;
 import com.exchange.c2c.common.util.ApiBeanUtils;
 import com.exchange.c2c.common.util.Assert;
+import com.exchange.c2c.common.util.RandomUtils;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.Order;
+import com.exchange.c2c.entity.OrderDetail;
 import com.exchange.c2c.enums.*;
 import com.exchange.c2c.model.*;
 import com.exchange.c2c.service.AdvertService;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -49,6 +53,43 @@ public class OrderController {
     @ApiOperation(value = "提交订单", notes = "创建人: 李海峰")
     public Result<?> create(@Valid CreateOrderForm form) {
         val advert = advertService.findById(form.getAdvId());
+        val payModes = Arrays.asList(advert.getPayModes().split(","));
+        val isBuy = Objects.equals(AdvertTypeEnum.BUY.getValue(), advert.getType());
+        val amount = isBuy ? form.getQuantity() : form.getTotalPrice();
+        Assert.isTrue(payModes.contains(form.getPayMode()), "支付方式不正确");
+        Assert.isFalse(amount.compareTo(new BigDecimal(advert.getMinValue())) < 0, "超出广告最小限额");
+        Assert.isFalse(amount.compareTo(new BigDecimal(advert.getMaxValue())) > 0, "超出广告最大限额");
+        Assert.isNull(orderService.getUnfinishedOrder(WebUtils.getUserId()), "存在未完成订单");
+        Assert.notEquals(advert.getCreateBy(), WebUtils.getUserId(), "不能向自己下单");
+
+        Order order = new Order();
+        order.setOrderNo(RandomUtils.serialNumber(6));
+        order.setPrice(advert.getPrice());
+        order.setQuantity(form.getQuantity());
+        order.setTotalPrice(form.getTotalPrice());
+        order.setCurrencyCode(advert.getCurrencyCode());
+        order.setSellerPayMode(form.getPayMode());
+        order.setStatus(OrderStatusEnum.WAIT_PAY.getValue());
+        order.setBuyerId(isBuy ? advert.getCreateBy() : WebUtils.getUserId());
+        order.setSellerId(isBuy ? WebUtils.getUserId() : advert.getCreateBy());
+        order.setCreateBy(WebUtils.getUserId());
+        order.setCreateTime(LocalDateTime.now());
+
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setOrderNo(order.getOrderNo());
+        orderDetail.setAdvNo(advert.getAdvNo());
+        orderDetail.setAdvType(advert.getType());
+        orderDetail.setAdvCreateBy(advert.getCreateBy());
+        orderDetail.setAdvMinValue(advert.getMinValue());
+        orderDetail.setAdvMaxValue(advert.getMaxValue());
+        orderDetail.setAdvPayModes(advert.getPayModes());
+        orderDetail.setAdvPayModeIds(advert.getPayModeIds());
+        orderDetail.setSellerAccountType(null);
+        orderDetail.setSellerAccountName(null);
+        orderDetail.setSellerAccountNumber(null);
+        orderDetail.setSellerQrCode(null);
+        orderDetail.setSellerBank(null);
+        orderDetail.setSellerBranchBank(null);
         return Result.SUCCESS;
     }
 

@@ -20,7 +20,7 @@ public class CreateAdvertForm {
     @ApiModelProperty("广告类型 1 - 购买, 2 - 出售")
     private Integer type;
 
-    @Digits(message = "价格只能输入两位小数", integer = Integer.MAX_VALUE, fraction = 2)
+    @Digits(message = "价格只能输入2位小数", integer = 20, fraction = 2)
     @NotNull(message = "单价不能为空")
     @ApiModelProperty("单价")
     private BigDecimal price;

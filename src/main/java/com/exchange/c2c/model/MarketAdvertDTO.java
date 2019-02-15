@@ -15,8 +15,23 @@ public class MarketAdvertDTO {
     @ApiModelProperty("商家名称")
     private String sellerName;
 
-    @ApiModelProperty("商家成交笔数")
+    @ApiModelProperty("成单数")
     private Long count;
+
+    @ApiModelProperty("完成率")
+    private String ratio;
+
+    @ApiModelProperty("币种编号")
+    private String currencyCode;
+
+    @ApiModelProperty("法币编号")
+    private String legalCurrencyCode;
+
+    @ApiModelProperty("总数量")
+    private BigDecimal totalQuantity;
+
+    @ApiModelProperty("剩余数量")
+    private BigDecimal quantity;
 
     @ApiModelProperty("单价")
     private BigDecimal price;

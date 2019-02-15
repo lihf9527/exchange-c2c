@@ -4,23 +4,13 @@ import java.time.*;
 import java.util.Date;
 
 public class DateUtils {
-    /**
-     * 获得日期的开始时间
-     */
-    public static Date getDateStart(Date date) {
-        return parseDate(toLocalDate(date), LocalTime.MIN);
+
+    public static LocalDate toLocalDate(Date date) {
+        return toLocalDateTime(date).toLocalDate();
     }
 
-    /**
-     * 获得日期的结束时间
-     */
-    public static Date getDateEnd(Date date) {
-        return parseDate(toLocalDate(date), LocalTime.MAX);
-    }
-
-    private static Date parseDate(LocalDate localDate, LocalTime localTime) {
-        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
-        return toDate(localDateTime);
+    public static LocalDateTime toLocalDateTime(Date date) {
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
     }
 
     public static Date toDate(LocalDate localDate) {
@@ -39,11 +29,16 @@ public class DateUtils {
         return Date.from(instant);
     }
 
-    public static LocalDate toLocalDate(Date date) {
-        return toLocalDateTime(date).toLocalDate();
+    private static Date toDate(LocalDate localDate, LocalTime localTime) {
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
+        return toDate(localDateTime);
     }
 
-    public static LocalDateTime toLocalDateTime(Date date) {
-        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    public static Date getDateStart(Date date) {
+        return toDate(toLocalDate(date), LocalTime.MIN);
+    }
+
+    public static Date getDateEnd(Date date) {
+        return toDate(toLocalDate(date), LocalTime.MAX);
     }
 }
