@@ -9,6 +9,8 @@ import com.exchange.c2c.model.QueryOrderForm;
 public interface OrderService {
     Order findById(Integer id);
 
+    Order getUnfinishedOrder(Long userId);
+
     <T extends EnumMsg<Integer>> IPage<Order> findAll(QueryOrderForm form, Class<T> enumClass);
 
     long countTodayCancelledOrders(Long userId);

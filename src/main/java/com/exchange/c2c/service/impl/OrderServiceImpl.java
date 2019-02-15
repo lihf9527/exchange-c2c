@@ -9,6 +9,7 @@ import com.exchange.c2c.common.util.EnumUtils;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.Order;
 import com.exchange.c2c.enums.AdvertTypeEnum;
+import com.exchange.c2c.enums.CurrentOrderStatusEnum;
 import com.exchange.c2c.enums.OrderStatusEnum;
 import com.exchange.c2c.enums.TradingTypeEnum;
 import com.exchange.c2c.mapper.OrderMapper;
@@ -32,6 +33,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order findById(Integer id) {
         return Optional.ofNullable(orderMapper.selectById(id)).orElseThrow(() -> new BizException("订单不存在"));
+    }
+
+    @Override
+    public Order getUnfinishedOrder(Long userId) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("create_by", userId);
+        wrapper.in("status", EnumUtils.getValues(CurrentOrderStatusEnum.class));
+        return orderMapper.selectOne(wrapper);
     }
 
     @Override
