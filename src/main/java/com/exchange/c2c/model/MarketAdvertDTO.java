@@ -45,6 +45,9 @@ public class MarketAdvertDTO {
     @ApiModelProperty("支付方式 1支付宝, 2微信, 3银行卡")
     private String pay_modes;
 
+    @ApiModelProperty("商家备注")
+    private String remark;
+
     @ApiModelProperty("广告类型 1购买 2出售")
     private String type;
 

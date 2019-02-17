@@ -26,6 +26,10 @@ public class NumberUtils {
         return new DecimalFormat(pattern).format(number);
     }
 
+    public static String format(BigDecimal number, String pattern) {
+        return new DecimalFormat(pattern).format(number);
+    }
+
     public static BigDecimal format(BigDecimal number) {
         return format(number, 2);
     }

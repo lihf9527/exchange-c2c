@@ -46,19 +46,24 @@ public class Order {
     private String currencyCode;
 
     /**
-     * 卖家收款方式 1支付宝 2微信 3银行卡
+     * 法币编号
      */
-    private String sellerPayMode;
+    private String legalCurrencyCode;
 
     /**
-     * 买家支付方式 1支付宝 2微信 3银行卡
+     * 支付方式 1支付宝 2微信 3银行卡
      */
-    private String buyerPayMode;
+    private String payMode;
 
     /**
-     * 买家支付凭证
+     * 买家转账的支付方式 1支付宝 2微信 3银行卡
      */
-    private String buyerPayVoucher;
+    private String transferPayMode;
+
+    /**
+     * 买家转账凭证
+     */
+    private String transferVoucher;
 
     /**
      * 订单状态 1待支付 2待确认 3已取消 4申诉中 5已完成

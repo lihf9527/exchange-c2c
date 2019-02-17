@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 订单明细表 存广告和支付方式的快照信息
  */
@@ -25,37 +27,57 @@ public class OrderDetail {
     /**
      * 广告编号
      */
-    private String advNo;
+    private String adNo;
 
     /**
      * 广告类型 1购买 2出售
      */
-    private Integer advType;
+    private Integer adType;
 
     /**
-     * 广告创建者ID
+     * 总数量
      */
-    private Long advCreateBy;
+    private BigDecimal adTotalQuantity;
 
     /**
-     * 广告单笔限额 下限
+     * 剩余数量
      */
-    private Integer advMinValue;
+    private BigDecimal adSurplusQuantity;
 
     /**
-     * 广告单笔限额 上限
+     * 数量单笔限额 最小值
      */
-    private Integer advMaxValue;
+    private BigDecimal adQuantityLimitMin;
+
+    /**
+     * 数量单笔限额 最大值
+     */
+    private BigDecimal adQuantityLimitMax;
+
+    /**
+     * 金额单笔限额 最小值
+     */
+    private BigDecimal adMoneyLimitMin;
+
+    /**
+     * 金额单笔限额 最大值
+     */
+    private BigDecimal adMoneyLimitMax;
 
     /**
      * 支付方式 1支付宝 2微信 3银行卡
      */
-    private String advPayModes;
+    private String adPayModes;
 
     /**
      * 支付方式ID, 多个用逗号分隔
      */
-    private String advPayModeIds;
+    private String adPayModeIds;
+
+    /**
+     * 广告备注
+     */
+    private String adRemark;
 
     /**
      * 卖方账户类型 1支付宝 2微信 3银行卡

@@ -23,10 +23,10 @@ public class Advert {
     /**
      * 广告编号
      */
-    private String advNo;
+    private String adNo;
 
     /**
-     * 类型 1购买 2出售
+     * 广告类型 1购买 2出售
      */
     private Integer type;
 
@@ -36,14 +36,44 @@ public class Advert {
     private BigDecimal price;
 
     /**
-     * 单笔限额 下限
+     * 总数量
      */
-    private Integer minValue;
+    private BigDecimal totalQuantity;
 
     /**
-     * 单笔限额 上限
+     * 剩余数量
      */
-    private Integer maxValue;
+    private BigDecimal surplusQuantity;
+
+    /**
+     * 币种编号
+     */
+    private String currencyCode;
+
+    /**
+     * 法币编号
+     */
+    private String legalCurrencyCode;
+
+    /**
+     * 数量单笔限额 最小值
+     */
+    private BigDecimal quantityLimitMin;
+
+    /**
+     * 数量单笔限额 最大值
+     */
+    private BigDecimal quantityLimitMax;
+
+    /**
+     * 金额单笔限额 最小值
+     */
+    private BigDecimal moneyLimitMin;
+
+    /**
+     * 金额单笔限额 最大值
+     */
+    private BigDecimal moneyLimitMax;
 
     /**
      * 支付方式 1支付宝 2微信 3银行卡
@@ -54,16 +84,6 @@ public class Advert {
      * 支付方式ID
      */
     private String payModeIds;
-
-    /**
-     * 币种编号
-     */
-    private String currencyCode;
-
-    /**
-     * 广告状态 1上架 0下架
-     */
-    private Integer status;
 
     /**
      * 创建人ID
@@ -84,4 +104,19 @@ public class Advert {
      * 修改时间
      */
     private LocalDateTime updateTime;
+
+    /**
+     * 广告状态 1上架 0下架
+     */
+    private Integer status;
+
+    /**
+     * 广告备注
+     */
+    private String remark;
+
+    /**
+     * 乐观锁版本号
+     */
+    private Long version;
 }
