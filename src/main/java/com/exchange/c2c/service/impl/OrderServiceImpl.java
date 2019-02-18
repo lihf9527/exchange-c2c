@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public long countFinishedOrders(Long userId, Integer advertType) {
+    public long countSellerFinishedOrders(Long userId, Integer advertType) {
         QueryWrapper<Order> wrapper = new QueryWrapper<>();
         wrapper.ne("create_by", userId);
         wrapper.eq("status", OrderStatusEnum.FINISHED.getValue());
@@ -92,13 +92,30 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public long countSellerAllOrders(Long userId, Integer advertType) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.ne("create_by", userId);
+        if (Objects.equals(AdvertTypeEnum.BUY.getValue(), advertType)) {
+            wrapper.eq("buyer_id", userId);
+        } else {
+            wrapper.eq("seller_id", userId);
+        }
+        return orderMapper.selectCount(wrapper);
+    }
+
+    @Override
     public void confirm(PaymentConfirmForm form) {
         Order order = new Order();
         order.setId(form.getId());
-        order.setBuyerPayMode(form.getPayMode());
-        order.setBuyerPayVoucher(form.getPayVoucher());
+//        order.setBuyerPayMode(form.getPayMode());
+//        order.setBuyerPayVoucher(form.getPayVoucher());
         order.setPayTime(LocalDateTime.now());
         order.setStatus(OrderStatusEnum.WAIT_CONFIRM.getValue());
         orderMapper.updateById(order);
+    }
+
+    private long countSellerOrders(Long userId, Integer advertType, Integer status) {
+
+        return 0;
     }
 }

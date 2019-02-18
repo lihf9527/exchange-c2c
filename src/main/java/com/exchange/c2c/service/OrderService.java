@@ -15,7 +15,9 @@ public interface OrderService {
 
     long countTodayCancelledOrders(Long userId);
 
-    long countFinishedOrders(Long userId, Integer advertType);
+    long countSellerFinishedOrders(Long userId, Integer advertType);
+
+    long countSellerAllOrders(Long userId, Integer advertType);
 
     void confirm(PaymentConfirmForm form);
 }

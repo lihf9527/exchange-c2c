@@ -44,33 +44,35 @@ public class AdvertController {
     @PostMapping("/create")
     @ApiOperation(value = "新增广告", notes = "创建人: 李海峰")
     public Result<Integer> create(@Valid CreateAdvertForm form) {
-        val advertisement = buildAdvertisement(form);
-        advertisement.setCreateBy(WebUtils.getUserId());
-        advertisement.setAdvNo(RandomUtils.serialNumber(6));
-        advertisement.setCreateTime(LocalDateTime.now());
-        advertisement.setStatus(AdvertStatusEnum.DISABLE.getValue());
-        advertService.save(advertisement);
-        return Result.success(advertisement.getId());
+        val advert = ApiBeanUtils.copyProperties(form, Advert::new);
+        advert.setPayModeIds(getPayModeIds(form.getPayModes()));
+        advert.setAdNo(RandomUtils.serialNumber(6));
+        advert.setCreateBy(WebUtils.getUserId());
+        advert.setCreateTime(LocalDateTime.now());
+        advert.setStatus(AdvertStatusEnum.DISABLE.getValue());
+        advertService.save(advert);
+        return Result.success(advert.getId());
     }
 
-    private Advert buildAdvertisement(CreateAdvertForm form) {
-        val advertisement = ApiBeanUtils.copyProperties(form, Advert::new);
-        advertisement.setUpdateTime(LocalDateTime.now());
-        val payModes = form.getPayModes().split(",");
-        val payModeList = payModeService.findEnabled(WebUtils.getUserId(), payModes);
-        Assert.isEquals(payModes.length, payModeList.size(), "支付方式未启用");
-        val payModeIds = payModeList.stream().map(e -> e.getId().toString()).collect(Collectors.joining(","));
-        advertisement.setPayModeIds(payModeIds);
-        return advertisement;
+    private String getPayModeIds(String payModes) {
+        val modes = payModes.split(",");
+        val payModeList = payModeService.findEnabled(WebUtils.getUserId(), modes);
+        Assert.isEquals(modes.length, payModeList.size(), "支付方式未启用");
+        return payModeList.stream().map(e -> e.getId().toString()).collect(Collectors.joining(","));
     }
 
     @Login
     @PostMapping("/update")
     @ApiOperation(value = "修改广告", notes = "创建人: 李海峰")
     public Result<?> update(@Valid UpdateAdvertForm form) {
-        val advertisement = advertService.findById(form.getId());
-        Assert.isEquals(advertisement.getId(), WebUtils.getUserId(), "非法操作");
-        advertService.save(buildAdvertisement(form));
+        val oldAdvert = advertService.findById(form.getId());
+        Assert.isEquals(oldAdvert.getCreateBy(), WebUtils.getUserId(), "非法操作");
+
+        val advert = ApiBeanUtils.copyProperties(form, Advert::new);
+        advert.setPayModeIds(getPayModeIds(form.getPayModes()));
+        advert.setUpdateBy(WebUtils.getUserId());
+        advert.setUpdateTime(LocalDateTime.now());
+        advertService.save(advert);
         return Result.SUCCESS;
     }
 
@@ -78,9 +80,9 @@ public class AdvertController {
     @GetMapping("/info")
     @ApiOperation(value = "广告详情", notes = "创建人: 李海峰")
     public Result<AdvertDTO> info(@RequestParam @ApiParam("广告ID") Integer id) {
-        val advertisement = advertService.findById(id);
-        val advertModel = ApiBeanUtils.copyProperties(advertisement, AdvertDTO::new);
-        return Result.success(advertModel);
+        val advert = advertService.findById(id);
+        val advertDTO = ApiBeanUtils.copyProperties(advert, AdvertDTO::new);
+        return Result.success(advertDTO);
     }
 
     @Login
@@ -96,7 +98,8 @@ public class AdvertController {
         return Result.success(ApiBeanUtils.convertToPageList(advertService.findAll(form), e -> {
             MarketAdvertDTO dto = ApiBeanUtils.copyProperties(e, MarketAdvertDTO::new);
             dto.setSellerName(userService.getFullName(e.getCreateBy()));
-            dto.setCount(orderService.countFinishedOrders(e.getCreateBy(), e.getType()));
+            dto.setCount(orderService.countSellerFinishedOrders(e.getCreateBy(), e.getType()));
+            dto.setRatio(null);
             return dto;
         }));
     }

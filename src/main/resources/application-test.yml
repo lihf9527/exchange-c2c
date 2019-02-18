@@ -20,3 +20,6 @@ logging:
   level.com.exchange.c2c: info
   path: logs/
   file: c2c.log
+
+cors:
+  origins: "*"

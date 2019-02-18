@@ -40,7 +40,7 @@ public class AdvertServiceImpl implements AdvertService {
     @Override
     public IPage<Advert> findAll(MyAdsForm form) {
         QueryWrapper<Advert> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", WebUtils.getUserId());
+        wrapper.eq("create_by", WebUtils.getUserId());
         if (!StringUtils.isEmpty(form.getType())) {
             wrapper.eq("type", form.getType());
         }

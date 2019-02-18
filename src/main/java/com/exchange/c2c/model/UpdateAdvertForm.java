@@ -19,5 +19,5 @@ public class UpdateAdvertForm extends CreateAdvertForm {
     @EnumValue(message = "广告状态枚举值不正确", enumClass = AdvertStatusEnum.class)
     @NotEmpty(message = "广告状态不能为空")
     @ApiModelProperty("广告状态 1上架 0下架")
-    private String status;
+    private Integer status;
 }
