@@ -3,10 +3,7 @@ package com.exchange.c2c.api;
 import com.exchange.c2c.common.Result;
 import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.page.PageList;
-import com.exchange.c2c.common.util.ApiBeanUtils;
-import com.exchange.c2c.common.util.Assert;
-import com.exchange.c2c.common.util.RandomUtils;
-import com.exchange.c2c.common.util.WebUtils;
+import com.exchange.c2c.common.util.*;
 import com.exchange.c2c.entity.Advert;
 import com.exchange.c2c.enums.AdvertStatusEnum;
 import com.exchange.c2c.model.*;
@@ -98,8 +95,10 @@ public class AdvertController {
         return Result.success(ApiBeanUtils.convertToPageList(advertService.findAll(form), e -> {
             MarketAdvertDTO dto = ApiBeanUtils.copyProperties(e, MarketAdvertDTO::new);
             dto.setSellerName(userService.getFullName(e.getCreateBy()));
-            dto.setCount(orderService.countSellerFinishedOrders(e.getCreateBy(), e.getType()));
-            dto.setRatio(null);
+            long count = orderService.countSellerFinishedOrders(e.getCreateBy(), e.getType());
+            double totalCount = orderService.countSellerAllOrders(e.getCreateBy(), e.getType());
+            dto.setCount(count);
+            dto.setRatio(NumberUtils.format(count / totalCount, "0%"));
             return dto;
         }));
     }

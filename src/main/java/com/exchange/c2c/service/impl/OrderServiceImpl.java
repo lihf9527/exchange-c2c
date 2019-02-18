@@ -80,27 +80,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public long countSellerFinishedOrders(Long userId, Integer advertType) {
-        QueryWrapper<Order> wrapper = new QueryWrapper<>();
-        wrapper.ne("create_by", userId);
-        wrapper.eq("status", OrderStatusEnum.FINISHED.getValue());
-        if (Objects.equals(AdvertTypeEnum.BUY.getValue(), advertType)) {
-            wrapper.eq("buyer_id", userId);
-        } else {
-            wrapper.eq("seller_id", userId);
-        }
-        return orderMapper.selectCount(wrapper);
+        return countSellerOrders(userId, advertType, OrderStatusEnum.FINISHED.getValue());
     }
 
     @Override
     public long countSellerAllOrders(Long userId, Integer advertType) {
-        QueryWrapper<Order> wrapper = new QueryWrapper<>();
-        wrapper.ne("create_by", userId);
-        if (Objects.equals(AdvertTypeEnum.BUY.getValue(), advertType)) {
-            wrapper.eq("buyer_id", userId);
-        } else {
-            wrapper.eq("seller_id", userId);
-        }
-        return orderMapper.selectCount(wrapper);
+        return countSellerOrders(userId, advertType, null);
     }
 
     @Override
@@ -115,7 +100,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private long countSellerOrders(Long userId, Integer advertType, Integer status) {
-
-        return 0;
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.ne("create_by", userId);
+        if (Objects.equals(AdvertTypeEnum.BUY.getValue(), advertType)) {
+            wrapper.eq("buyer_id", userId);
+        } else {
+            wrapper.eq("seller_id", userId);
+        }
+        if (Objects.nonNull(status)) {
+            wrapper.eq("status", status);
+        }
+        return orderMapper.selectCount(wrapper);
     }
 }
