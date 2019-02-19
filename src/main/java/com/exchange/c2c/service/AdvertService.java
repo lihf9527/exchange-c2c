@@ -5,10 +5,19 @@ import com.exchange.c2c.entity.Advert;
 import com.exchange.c2c.model.MarketAdvertForm;
 import com.exchange.c2c.model.MyAdsForm;
 
+import java.math.BigDecimal;
+
 public interface AdvertService {
     Advert findById(Integer id);
 
+    Advert findByAdNo(String adNo);
+
     void save(Advert advert);
+
+    /**
+     * 减少广告剩余数量
+     */
+    void decr(String adNo, BigDecimal quantity);
 
     IPage<Advert> findAll(MyAdsForm form);
 

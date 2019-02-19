@@ -9,8 +9,8 @@ import com.exchange.c2c.entity.User;
 import com.exchange.c2c.enums.AccountTypeEnum;
 import com.exchange.c2c.enums.PayModeStatusEnum;
 import com.exchange.c2c.model.CreatePayModeForm;
-import com.exchange.c2c.model.PayModeForm;
 import com.exchange.c2c.model.PayModeDTO;
+import com.exchange.c2c.model.PayModeForm;
 import com.exchange.c2c.model.UpdatePayModeForm;
 import com.exchange.c2c.service.GoogleAuthService;
 import com.exchange.c2c.service.PayModeService;
@@ -46,9 +46,9 @@ public class PayModeController {
     @ApiOperation(value = "添加支付方式", notes = "创建人: 李海峰")
     public Result<Integer> create(@Valid CreatePayModeForm form) {
         PayMode payMode = buildPayMode(form);
+        payMode.setStatus(PayModeStatusEnum.DISABLE.getValue());
         payMode.setCreateBy(WebUtils.getUserId());
         payMode.setCreateTime(LocalDateTime.now());
-        payMode.setStatus(PayModeStatusEnum.DISABLE.getValue());
         payModeService.save(payMode);
         return Result.success(payMode.getId());
     }
@@ -123,9 +123,10 @@ public class PayModeController {
     @PostMapping("/isEnabled")
     @ApiOperation(value = "支付方式是否启用", notes = "创建人: 李海峰")
     public Result<List<PayModeDTO>> isEnabled(String payModes) {
-        val payModeList = payModeService.findEnabled(WebUtils.getUserId(), payModes.split(","));
-        val payModeModels = payModeList.stream().map(e -> ApiBeanUtils.copyProperties(e, PayModeDTO::new)).collect(Collectors.toList());
-        return Result.success(payModeModels);
+        val accountTypes = payModeService.findAccountTypes(payModes.split(","));
+        val payModeList = payModeService.findEnabled(WebUtils.getUserId(), accountTypes);
+        val payModeDTOS = payModeList.stream().map(e -> ApiBeanUtils.copyProperties(e, PayModeDTO::new)).collect(Collectors.toList());
+        return Result.success(payModeDTOS);
     }
 
     @Login

@@ -14,10 +14,10 @@ import javax.validation.constraints.Size;
 @Data
 @ApiModel
 public class CreatePayModeForm {
-    @Size(message = "用户名长度不能大于20", max = 20)
-    @NotEmpty(message = "用户名不能为空")
-    @ApiModelProperty("用户名")
-    private String userName;
+    @Size(message = "账户名长度不能大于20", max = 20)
+    @NotEmpty(message = "账户名不能为空")
+    @ApiModelProperty("账户名")
+    private String accountName;
 
     @EnumValue(message = "账号类型枚举值不正确", enumClass = AccountTypeEnum.class)
     @NotNull(message = "账号类型不能为空")
@@ -27,7 +27,7 @@ public class CreatePayModeForm {
     @Size(message = "账号长度不能大于20", max = 20)
     @NotEmpty(message = "账号不能为空")
     @ApiModelProperty("微信/支付宝/银行卡 账号")
-    private String account;
+    private String accountNumber;
 
     @Size(message = "收款二维码长度不能大于512", max = 512)
     @ApiModelProperty("微信/支付宝 收款二维码")

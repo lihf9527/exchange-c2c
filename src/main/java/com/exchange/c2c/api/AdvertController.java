@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Api(tags = "广告接口")
@@ -44,18 +46,19 @@ public class AdvertController {
         val advert = ApiBeanUtils.copyProperties(form, Advert::new);
         advert.setPayModeIds(getPayModeIds(form.getPayModes()));
         advert.setAdNo(RandomUtils.serialNumber(6));
+        advert.setSurplusQuantity(form.getTotalQuantity());
         advert.setCreateBy(WebUtils.getUserId());
         advert.setCreateTime(LocalDateTime.now());
         advert.setStatus(AdvertStatusEnum.DISABLE.getValue());
+        advert.setVersion(0L);
         advertService.save(advert);
         return Result.success(advert.getId());
     }
 
     private String getPayModeIds(String payModes) {
-        val modes = payModes.split(",");
-        val payModeList = payModeService.findEnabled(WebUtils.getUserId(), modes);
-        Assert.isEquals(modes.length, payModeList.size(), "支付方式未启用");
-        return payModeList.stream().map(e -> e.getId().toString()).collect(Collectors.joining(","));
+        List<Integer> accountTypes = payModeService.findAccountTypes(payModes.split(","));
+        List<Integer> ids = payModeService.findIds(WebUtils.getUserId(), accountTypes);
+        return ids.stream().map(Objects::toString).collect(Collectors.joining(","));
     }
 
     @Login
@@ -64,12 +67,33 @@ public class AdvertController {
     public Result<?> update(@Valid UpdateAdvertForm form) {
         val oldAdvert = advertService.findById(form.getId());
         Assert.isEquals(oldAdvert.getCreateBy(), WebUtils.getUserId(), "非法操作");
+        Assert.isEquals(AdvertStatusEnum.DISABLE.getValue(), oldAdvert.getStatus(), "只能修改已下架的广告");
 
         val advert = ApiBeanUtils.copyProperties(form, Advert::new);
         advert.setPayModeIds(getPayModeIds(form.getPayModes()));
         advert.setUpdateBy(WebUtils.getUserId());
         advert.setUpdateTime(LocalDateTime.now());
+        advert.setVersion(oldAdvert.getVersion());
         advertService.save(advert);
+        return Result.SUCCESS;
+    }
+
+    @Login
+    @PostMapping("/enable")
+    @ApiOperation(value = "上架广告", notes = "创建人: 李海峰")
+    public Result<?> enable(@ApiParam("广告ID") @RequestParam Integer id) {
+        val advert = advertService.findById(id);
+        Assert.isEquals(AdvertStatusEnum.DISABLE.getValue(), advert.getStatus(), "广告已上架,不能重复上架");
+        
+        return Result.SUCCESS;
+    }
+
+    @Login
+    @PostMapping("/disable")
+    @ApiOperation(value = "下架广告", notes = "创建人: 李海峰")
+    public Result<?> disable(@ApiParam("广告ID") @RequestParam Integer id) {
+        val advert = advertService.findById(id);
+        Assert.isEquals(AdvertStatusEnum.ENABLE.getValue(), advert.getStatus(), "广告已下架,不能重复下架");
         return Result.SUCCESS;
     }
 

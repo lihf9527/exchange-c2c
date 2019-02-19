@@ -4,12 +4,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.exchange.c2c.common.Result;
 import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.page.PageList;
-import com.exchange.c2c.common.util.ApiBeanUtils;
-import com.exchange.c2c.common.util.Assert;
-import com.exchange.c2c.common.util.RandomUtils;
-import com.exchange.c2c.common.util.WebUtils;
+import com.exchange.c2c.common.util.*;
+import com.exchange.c2c.entity.Advert;
 import com.exchange.c2c.entity.Order;
 import com.exchange.c2c.entity.OrderDetail;
+import com.exchange.c2c.entity.PayMode;
 import com.exchange.c2c.enums.*;
 import com.exchange.c2c.model.*;
 import com.exchange.c2c.service.AdvertService;
@@ -32,6 +31,7 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Api(tags = "订单接口")
@@ -51,46 +51,63 @@ public class OrderController {
     @Login
     @PostMapping("/create")
     @ApiOperation(value = "提交订单", notes = "创建人: 李海峰")
-    public Result<?> create(@Valid CreateOrderForm form) {
-//        val advert = advertService.findById(form.getAdvId());
-//        val payModes = Arrays.asList(advert.getPayModes().split(","));
-//        val isBuy = Objects.equals(AdvertTypeEnum.BUY.getValue(), advert.getType());
-//        val amount = isBuy ? form.getQuantity() : form.getTotalPrice();
-//        Assert.isTrue(payModes.contains(form.getPayMode()), "支付方式不正确");
-//        Assert.isFalse(amount.compareTo(new BigDecimal(advert.getMinValue())) < 0, "超出广告最小限额");
-//        Assert.isFalse(amount.compareTo(new BigDecimal(advert.getMaxValue())) > 0, "超出广告最大限额");
-//        Assert.isNull(orderService.getUnfinishedOrder(WebUtils.getUserId()), "存在未完成订单");
-//        Assert.notEquals(advert.getCreateBy(), WebUtils.getUserId(), "不能向自己下单");
-//
-//        Order order = new Order();
-//        order.setOrderNo(RandomUtils.serialNumber(6));
-//        order.setPrice(advert.getPrice());
-//        order.setQuantity(form.getQuantity());
-//        order.setTotalPrice(form.getTotalPrice());
-//        order.setCurrencyCode(advert.getCurrencyCode());
-//        order.setSellerPayMode(form.getPayMode());
-//        order.setStatus(OrderStatusEnum.WAIT_PAY.getValue());
-//        order.setBuyerId(isBuy ? advert.getCreateBy() : WebUtils.getUserId());
-//        order.setSellerId(isBuy ? WebUtils.getUserId() : advert.getCreateBy());
-//        order.setCreateBy(WebUtils.getUserId());
-//        order.setCreateTime(LocalDateTime.now());
-//
-//        OrderDetail orderDetail = new OrderDetail();
-//        orderDetail.setOrderNo(order.getOrderNo());
-//        orderDetail.setAdvNo(advert.getAdvNo());
-//        orderDetail.setAdvType(advert.getType());
-//        orderDetail.setAdvCreateBy(advert.getCreateBy());
-//        orderDetail.setAdvMinValue(advert.getMinValue());
-//        orderDetail.setAdvMaxValue(advert.getMaxValue());
-//        orderDetail.setAdvPayModes(advert.getPayModes());
-//        orderDetail.setAdvPayModeIds(advert.getPayModeIds());
-//        orderDetail.setSellerAccountType(null);
-//        orderDetail.setSellerAccountName(null);
-//        orderDetail.setSellerAccountNumber(null);
-//        orderDetail.setSellerQrCode(null);
-//        orderDetail.setSellerBank(null);
-//        orderDetail.setSellerBranchBank(null);
-        return Result.SUCCESS;
+    public Result<Integer> create(@Valid CreateOrderForm form) {
+        Advert advert = advertService.findByAdNo(form.getAdNo());
+        Assert.isEquals(AdvertStatusEnum.ENABLE.getValue(), advert.getStatus(), "广告已下架");
+        Assert.notEquals(advert.getCreateBy(), WebUtils.getUserId(), "不能向自己下单");
+        Assert.isNull(orderService.getUnfinishedOrder(WebUtils.getUserId()), "存在未完成订单");
+
+        List<String> payModes = Arrays.asList(advert.getPayModes().split(","));
+        Assert.isTrue(payModes.contains(form.getPayMode()), "支付方式不正确");
+
+        boolean quantityLtMin = form.getQuantity().compareTo(advert.getQuantityLimitMin()) < 0;
+        boolean quantityGtMax = form.getQuantity().compareTo(advert.getQuantityLimitMax()) > 0;
+        boolean totalPriceLtMin = form.getTotalPrice().compareTo(advert.getMoneyLimitMin()) < 0;
+        boolean totalPriceGtMax = form.getTotalPrice().compareTo(advert.getMoneyLimitMax()) > 0;
+        Assert.isTrue(!quantityLtMin && !quantityGtMax || !totalPriceLtMin && !totalPriceGtMax, "超出限额");
+
+        BigDecimal totalPrice = advert.getPrice().multiply(form.getQuantity());
+        Assert.isEquals(form.getTotalPrice(), NumberUtils.format(totalPrice), "总价计算错误");
+
+        boolean isBuyAd = Objects.equals(AdvertTypeEnum.BUY.getValue(), advert.getType());
+        PayMode payMode = new PayMode();// TODO: 2019/2/19  
+
+        Order order = new Order();
+        order.setOrderNo(RandomUtils.serialNumber(6));
+        order.setPrice(advert.getPrice());
+        order.setQuantity(form.getQuantity());
+        order.setTotalPrice(form.getTotalPrice());
+        order.setCurrencyCode(advert.getCurrencyCode());
+        order.setLegalCurrencyCode(advert.getLegalCurrencyCode());
+        order.setPayMode(form.getPayMode());
+        order.setStatus(OrderStatusEnum.WAIT_PAY.getValue());
+        order.setBuyerId(isBuyAd ? advert.getCreateBy() : WebUtils.getUserId());
+        order.setSellerId(isBuyAd ? WebUtils.getUserId() : advert.getCreateBy());
+        order.setCreateBy(WebUtils.getUserId());
+        order.setCreateTime(LocalDateTime.now());
+
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setOrderNo(order.getOrderNo());
+        orderDetail.setAdNo(advert.getAdNo());
+        orderDetail.setAdType(advert.getType());
+        orderDetail.setAdTotalQuantity(advert.getTotalQuantity());
+        orderDetail.setAdSurplusQuantity(advert.getSurplusQuantity());
+        orderDetail.setAdQuantityLimitMin(advert.getQuantityLimitMin());
+        orderDetail.setAdQuantityLimitMax(advert.getQuantityLimitMax());
+        orderDetail.setAdMoneyLimitMin(advert.getMoneyLimitMin());
+        orderDetail.setAdMoneyLimitMax(advert.getMoneyLimitMax());
+        orderDetail.setAdPayModes(advert.getPayModes());
+        orderDetail.setAdPayModeIds(advert.getPayModeIds());
+        orderDetail.setAdRemark(advert.getRemark());
+        orderDetail.setSellerAccountType(payMode.getAccountType());
+        orderDetail.setSellerAccountName(payMode.getAccountName());
+        orderDetail.setSellerAccountNumber(payMode.getAccountNumber());
+        orderDetail.setSellerQrCode(payMode.getQrCode());
+        orderDetail.setSellerBank(payMode.getBank());
+        orderDetail.setSellerBranchBank(payMode.getBranchBank());
+
+        orderService.create(order, orderDetail);
+        return Result.success(order.getId());
     }
 
     @Login
@@ -124,6 +141,7 @@ public class OrderController {
         val order = orderService.findById(id);
         Assert.isEquals(order.getBuyerId(), WebUtils.getUserId(), "非法操作");
         Assert.isEquals(OrderStatusEnum.WAIT_PAY.getValue(), order.getStatus(), "不能重复取消");
+        orderService.cancel(id);
         return Result.SUCCESS;
     }
 
@@ -131,21 +149,21 @@ public class OrderController {
     @PostMapping("/payment/confirm")
     @ApiOperation(value = "确认支付", notes = "创建人: 李海峰")
     public Result<?> paymentConfirm(@Valid PaymentConfirmForm form) {
-//        val order = orderService.findById(form.getId());
-//        Assert.isEquals(order.getBuyerId(), WebUtils.getUserId(), "非法操作");
-//        Assert.isEquals(order.getStatus(), OrderStatusEnum.WAIT_PAY.getValue(), "不能重复确认");
-//        if (!Objects.equals(PayModeEnum.BANK_CARD_PAYMENT.getValue(), order.getSellerPayMode())) {
-//            Assert.isEquals(order.getSellerPayMode(), form.getPayMode(), "支付方式不匹配");
-//        }
-//        orderService.confirm(form);
+        val order = orderService.findById(form.getId());
+        Assert.isEquals(order.getBuyerId(), WebUtils.getUserId(), "非法操作");
+        Assert.isEquals(order.getStatus(), OrderStatusEnum.WAIT_PAY.getValue(), "不能重复确认");
+        orderService.confirm(form);
         return Result.SUCCESS;
     }
 
     @Login
     @PostMapping("/receipts/confirm")
     @ApiOperation(value = "确认收款", notes = "创建人: 李海峰")
-    public Result<?> receiptsConfirm(Integer id) {
-
+    public Result<?> receiptsConfirm(@ApiParam("订单ID") @RequestParam Integer id) {
+        Order order = orderService.findById(id);
+        Assert.isEquals(order.getSellerId(), WebUtils.getUserId(), "非法操作");
+        Assert.isEquals(order.getStatus(), OrderStatusEnum.WAIT_CONFIRM.getValue(), "不能重复确认");
+        orderService.confirm(id);
         return Result.SUCCESS;
     }
 

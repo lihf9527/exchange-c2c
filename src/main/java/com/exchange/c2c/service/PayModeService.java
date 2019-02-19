@@ -22,9 +22,15 @@ public interface PayModeService {
     /**
      * 查询用户已启用的支付方式
      *
-     * @param userId  用户ID
-     * @param payModes {@link com.exchange.c2c.enums.PayModeEnum}
-     * @return payMode 对应的 accountType 已启用则返回
+     * @param userId       用户ID
+     * @param accountTypes {@link com.exchange.c2c.enums.AccountTypeEnum}
+     * @return 已启用的支付方式
      */
-    List<PayMode> findEnabled(Long userId, String... payModes);
+    List<PayMode> findEnabled(Long userId, List<Integer> accountTypes);
+
+    PayMode findByIdsAndAccountType(List<Integer> ids, Integer accountType);
+
+    List<Integer> findIds(Long userId, List<Integer> accountTypes);
+
+    List<Integer> findAccountTypes(String... payModes);
 }

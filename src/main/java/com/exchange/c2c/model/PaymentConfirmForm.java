@@ -23,5 +23,5 @@ public class PaymentConfirmForm {
 
     @NotEmpty(message = "支付凭证不能为空")
     @ApiModelProperty("支付凭证")
-    private String payVoucher;
+    private String voucher;
 }

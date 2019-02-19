@@ -41,14 +41,13 @@ public class AppealController {
     @Login
     @PostMapping("/create")
     @ApiOperation(value = "提交申诉", notes = "创建人: 李海峰")
-    public Result<?> create(@Valid CreateAppealForm form) {
-        verify(orderService.findById(form.getOrderId()));
+    public Result<Integer> create(@Valid CreateAppealForm form) {
+        verify(orderService.findByOrderNo(form.getOrderNo()));
 
         val appeal = ApiBeanUtils.copyProperties(form, Appeal::new);
-        appeal.setCreateBy(WebUtils.getUserId());
         appeal.setStatus(AppealStatusEnum.PROCESSING.getValue());
-        appeal.setCreateTime(LocalDateTime.now());
         appeal.setCreateBy(WebUtils.getUserId());
+        appeal.setCreateTime(LocalDateTime.now());
         appealService.insert(appeal);
         return Result.success(appeal.getId());
     }
@@ -76,13 +75,13 @@ public class AppealController {
     @Login
     @GetMapping("/info")
     @ApiOperation(value = "申诉详情", notes = "创建人: 李海峰")
-    public Result<AppealDTO> info(@RequestParam @ApiParam("订单ID") Integer orderId) {
-        val order = orderService.findById(orderId);
+    public Result<AppealDTO> info(@RequestParam @ApiParam("订单编号") String orderNo) {
+        val order = orderService.findByOrderNo(orderNo);
         val validUserIds = Arrays.asList(order.getBuyerId(), order.getSellerId());
         Assert.isTrue(validUserIds.contains(WebUtils.getUserId()), "非法操作");
 
-        val appeal = appealService.findByOrderId(orderId);
-        val appealModel = ApiBeanUtils.copyProperties(appeal, AppealDTO::new);
-        return Result.success(appealModel);
+        val appeal = appealService.findByOrderNo(orderNo);
+        val appealDTO = ApiBeanUtils.copyProperties(appeal, AppealDTO::new);
+        return Result.success(appealDTO);
     }
 }

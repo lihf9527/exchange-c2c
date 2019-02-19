@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.exchange.c2c.common.exception.BizException;
+import com.exchange.c2c.common.util.Assert;
 import com.exchange.c2c.common.util.EnumUtils;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.PayMode;
@@ -94,18 +95,38 @@ public class PayModeServiceImpl implements PayModeService {
     }
 
     @Override
-    public List<PayMode> findEnabled(Long userId, String... payModes) {
-        List<Integer> accountTypes = Arrays.stream(payModes)
-                .map(e -> EnumUtils.toEnum(e, PayModeEnum.class))
-                .filter(Objects::nonNull)
-                .map(PayModeEnum::getAccountType)
-                .map(AccountTypeEnum::getValue)
-                .collect(Collectors.toList());
-
+    public List<PayMode> findEnabled(Long userId, List<Integer> accountTypes) {
         QueryWrapper<PayMode> wrapper = new QueryWrapper<>();
         wrapper.eq("user_id", userId);
         wrapper.eq("status", PayModeStatusEnum.ENABLE.getValue());
         wrapper.in("account_type", accountTypes);
         return payModeMapper.selectList(wrapper);
+    }
+
+    @Override
+    public PayMode findByIdsAndAccountType(List<Integer> ids, Integer accountType) {
+        QueryWrapper<PayMode> wrapper = new QueryWrapper<>();
+        wrapper.in("id", ids);
+        wrapper.eq("account_type", accountType);
+        List<PayMode> payModes = payModeMapper.selectList(wrapper);
+        Assert.isTrue(!payModes.isEmpty() && payModes.size() == 1, "购买失败,请联系卖家更新广告");
+        return payModes.get(0);
+    }
+
+    @Override
+    public List<Integer> findIds(Long userId, List<Integer> accountTypes) {
+        List<PayMode> payModeList = findEnabled(userId, accountTypes);
+        Assert.isEquals(accountTypes.size(), payModeList.size(), "支付方式未启用");
+        return payModeList.stream().map(PayMode::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Integer> findAccountTypes(String... payModes) {
+        return Arrays.stream(payModes)
+                .map(e -> EnumUtils.toEnum(e, PayModeEnum.class))
+                .filter(Objects::nonNull)
+                .map(PayModeEnum::getAccountType)
+                .map(AccountTypeEnum::getValue)
+                .collect(Collectors.toList());
     }
 }

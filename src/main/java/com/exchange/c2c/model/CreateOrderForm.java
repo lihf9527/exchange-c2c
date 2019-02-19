@@ -14,9 +14,9 @@ import java.math.BigDecimal;
 @Data
 @ApiModel
 public class CreateOrderForm {
-    @NotNull(message = "广告ID不能为空")
-    @ApiModelProperty("广告ID")
-    private Integer advId;
+    @NotNull(message = "广告编号不能为空")
+    @ApiModelProperty("广告编号")
+    private String adNo;
 
     @EnumValue(message = "支付方式枚举值不正确", enumClass = PayModeEnum.class)
     @NotEmpty(message = "支付方式不能为空")

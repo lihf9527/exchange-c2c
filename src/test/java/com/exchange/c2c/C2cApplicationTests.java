@@ -1,6 +1,7 @@
 package com.exchange.c2c;
 
 import com.exchange.c2c.mapper.AccountMapper;
+import com.exchange.c2c.mapper.CurrencyMapper;
 import com.exchange.c2c.mapper.FundTransactionMapper;
 import com.exchange.c2c.mapper.UserMapper;
 import org.junit.Test;
@@ -25,10 +26,12 @@ public class C2cApplicationTests {
     private AccountMapper accountMapper;
     @Autowired
     private FundTransactionMapper fundTransactionMapper;
+    @Autowired
+    private CurrencyMapper currencyMapper;
 
     @Test
     public void contextLoads() {
-
+        System.out.println(currencyMapper.findCurrencyIdByCode("USDT"));
     }
 
     @Test

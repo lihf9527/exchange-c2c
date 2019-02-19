@@ -8,16 +8,22 @@ import com.exchange.c2c.common.exception.BizException;
 import com.exchange.c2c.common.util.EnumUtils;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.Order;
+import com.exchange.c2c.entity.OrderDetail;
 import com.exchange.c2c.enums.AdvertTypeEnum;
 import com.exchange.c2c.enums.CurrentOrderStatusEnum;
 import com.exchange.c2c.enums.OrderStatusEnum;
 import com.exchange.c2c.enums.TradingTypeEnum;
+import com.exchange.c2c.mapper.CurrencyMapper;
+import com.exchange.c2c.mapper.OrderDetailMapper;
 import com.exchange.c2c.mapper.OrderMapper;
 import com.exchange.c2c.model.PaymentConfirmForm;
 import com.exchange.c2c.model.QueryOrderForm;
+import com.exchange.c2c.service.AccountService;
+import com.exchange.c2c.service.AdvertService;
 import com.exchange.c2c.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
@@ -29,10 +35,26 @@ import java.util.Optional;
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private OrderDetailMapper orderDetailMapper;
+    @Autowired
+    private CurrencyMapper currencyMapper;
+
+    @Autowired
+    private AccountService accountService;
+    @Autowired
+    private AdvertService advertService;
 
     @Override
     public Order findById(Integer id) {
         return Optional.ofNullable(orderMapper.selectById(id)).orElseThrow(() -> new BizException("订单不存在"));
+    }
+
+    @Override
+    public Order findByOrderNo(String orderNo) {
+        QueryWrapper<Order> wrapper = new QueryWrapper<>();
+        wrapper.eq("order_no", orderNo);
+        return Optional.ofNullable(orderMapper.selectOne(wrapper)).orElseThrow(() -> new BizException("订单不存在"));
     }
 
     @Override
@@ -89,14 +111,53 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void confirm(PaymentConfirmForm form) {
         Order order = new Order();
         order.setId(form.getId());
-//        order.setBuyerPayMode(form.getPayMode());
-//        order.setBuyerPayVoucher(form.getPayVoucher());
+        order.setTransferPayMode(form.getPayMode());
+        order.setTransferVoucher(form.getVoucher());
         order.setPayTime(LocalDateTime.now());
         order.setStatus(OrderStatusEnum.WAIT_CONFIRM.getValue());
         orderMapper.updateById(order);
+    }
+
+    @Override
+    @Transactional
+    public void confirm(Integer id) {
+        Order order = findById(id);
+        // 修改订单状态
+        Order temp = new Order();
+        temp.setId(order.getId());
+        temp.setStatus(OrderStatusEnum.FINISHED.getValue());
+        temp.setFinishTime(LocalDateTime.now());
+        orderMapper.updateById(temp);
+        // 转账
+        Integer currencyId = currencyMapper.findCurrencyIdByCode(order.getCurrencyCode());
+        accountService.transfer(currencyId, order.getSellerId(), order.getBuyerId(), order.getQuantity());
+    }
+
+    @Override
+    @Transactional
+    public void cancel(Integer id) {
+        Order order = findById(id);
+        // 修改订单状态
+        Order temp = new Order();
+        temp.setId(order.getId());
+        temp.setStatus(OrderStatusEnum.CANCELED.getValue());
+        temp.setCancelTime(LocalDateTime.now());
+        orderMapper.updateById(temp);
+        // 解冻
+        Integer currencyId = currencyMapper.findCurrencyIdByCode(order.getCurrencyCode());
+        accountService.unfreeze(currencyId, order.getSellerId(), order.getQuantity());
+    }
+
+    @Override
+    @Transactional
+    public void create(Order order, OrderDetail orderDetail) {
+        orderMapper.insert(order);
+        orderDetailMapper.insert(orderDetail);
+        advertService.decr(orderDetail.getAdNo(), order.getQuantity());
     }
 
     private long countSellerOrders(Long userId, Integer advertType, Integer status) {

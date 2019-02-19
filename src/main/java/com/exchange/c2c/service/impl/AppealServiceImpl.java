@@ -21,9 +21,9 @@ public class AppealServiceImpl implements AppealService {
     }
 
     @Override
-    public Appeal findByOrderId(Integer orderId) {
+    public Appeal findByOrderNo(String orderNo) {
         QueryWrapper<Appeal> wrapper = new QueryWrapper<>();
-        wrapper.eq("order_id", orderId);
+        wrapper.eq("order_no", orderNo);
         return Optional.ofNullable(appealMapper.selectOne(wrapper)).orElseThrow(() -> new BizException("该订单没有申诉信息"));
     }
 }
