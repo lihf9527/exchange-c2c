@@ -11,10 +11,7 @@ import com.exchange.c2c.entity.OrderDetail;
 import com.exchange.c2c.entity.PayMode;
 import com.exchange.c2c.enums.*;
 import com.exchange.c2c.model.*;
-import com.exchange.c2c.service.AdvertService;
-import com.exchange.c2c.service.OrderDetailService;
-import com.exchange.c2c.service.OrderService;
-import com.exchange.c2c.service.UserService;
+import com.exchange.c2c.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -47,6 +44,8 @@ public class OrderController {
     private AdvertService advertService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private PayModeService payModeService;
 
     @Login
     @PostMapping("/create")
@@ -70,7 +69,6 @@ public class OrderController {
         Assert.isEquals(form.getTotalPrice(), NumberUtils.format(totalPrice), "总价计算错误");
 
         boolean isBuyAd = Objects.equals(AdvertTypeEnum.BUY.getValue(), advert.getType());
-        PayMode payMode = new PayMode();// TODO: 2019/2/19  
 
         Order order = new Order();
         order.setOrderNo(RandomUtils.serialNumber(6));
@@ -85,6 +83,8 @@ public class OrderController {
         order.setSellerId(isBuyAd ? WebUtils.getUserId() : advert.getCreateBy());
         order.setCreateBy(WebUtils.getUserId());
         order.setCreateTime(LocalDateTime.now());
+
+        PayMode payMode = payModeService.findEnabled(order.getSellerId(), Integer.valueOf(form.getPayMode()));
 
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setOrderNo(order.getOrderNo());
@@ -128,7 +128,8 @@ public class OrderController {
         OrderInfoDTO orderInfoDTO = new OrderInfoDTO();
         BeanUtils.copyProperties(orderDetail, orderInfoDTO);
         BeanUtils.copyProperties(order, orderInfoDTO);
-        orderInfoDTO.setType(Objects.equals(order.getBuyerId(), WebUtils.getUserId()) ? TradingTypeEnum.BUY.getValue() : TradingTypeEnum.SELL.getValue());
+        orderInfoDTO.setType(Objects.equals(order.getBuyerId(), order.getCreateBy()) ? TradingTypeEnum.BUY.getValue() : TradingTypeEnum.SELL.getValue());
+        orderInfoDTO.setIsSeller(Objects.equals(order.getSellerId(), WebUtils.getUserId()));
         orderInfoDTO.setBuyerName(userService.getFullName(order.getBuyerId()));
         orderInfoDTO.setSellerName(userService.getFullName(order.getSellerId()));
         return orderInfoDTO;

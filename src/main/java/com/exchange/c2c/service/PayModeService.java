@@ -28,6 +28,8 @@ public interface PayModeService {
      */
     List<PayMode> findEnabled(Long userId, List<Integer> accountTypes);
 
+    PayMode findEnabled(Long userId, Integer accountType);
+
     PayMode findByIdsAndAccountType(List<Integer> ids, Integer accountType);
 
     List<Integer> findIds(Long userId, List<Integer> accountTypes);

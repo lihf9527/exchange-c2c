@@ -21,6 +21,9 @@ public class OrderInfoDTO {
     @ApiModelProperty("交易类型 1购买 2出售")
     private Integer type;
 
+    @ApiModelProperty("是否是卖方")
+    private Boolean isSeller;
+
     @ApiModelProperty("买方名称")
     private String buyerName;
 
@@ -52,14 +55,14 @@ public class OrderInfoDTO {
     private LocalDateTime finishTime;
 
 
-    @ApiModelProperty("卖家收款方式 1支付宝 2微信 3银行卡")
-    private String sellerPayMode;
+    @ApiModelProperty("支付方式 1支付宝 2微信 3银行卡")
+    private String payMode;
 
-    @ApiModelProperty("买家支付方式 1支付宝 2微信 3银行卡")
-    private String buyerPayMode;
+    @ApiModelProperty("买方转账支付方式 1支付宝 2微信 3银行卡")
+    private String transferPayMode;
 
-    @ApiModelProperty("买家支付凭证 URL 多个用逗号分隔")
-    private String buyerPayVoucher;
+    @ApiModelProperty("买方转账凭证 URL 多个用逗号分隔")
+    private String transferVoucher;
 
 
     @ApiModelProperty("卖方收款账户类型 1支付宝 2微信 3银行卡")

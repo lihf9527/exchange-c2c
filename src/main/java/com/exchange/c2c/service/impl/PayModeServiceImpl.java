@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,6 +98,12 @@ public class PayModeServiceImpl implements PayModeService {
         wrapper.eq("status", PayModeStatusEnum.ENABLE.getValue());
         wrapper.in("account_type", accountTypes);
         return payModeMapper.selectList(wrapper);
+    }
+
+    @Override
+    public PayMode findEnabled(Long userId, Integer accountType) {
+        List<PayMode> list = findEnabled(userId, Collections.singletonList(accountType));
+        return list.isEmpty() ? null : list.get(0);
     }
 
     @Override
