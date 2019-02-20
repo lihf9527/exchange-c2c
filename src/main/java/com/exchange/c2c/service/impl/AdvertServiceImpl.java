@@ -9,8 +9,10 @@ import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.Advert;
 import com.exchange.c2c.enums.AdvertStatusEnum;
 import com.exchange.c2c.mapper.AdvertMapper;
+import com.exchange.c2c.mapper.CurrencyMapper;
 import com.exchange.c2c.model.MarketAdvertForm;
 import com.exchange.c2c.model.MyAdsForm;
+import com.exchange.c2c.service.AccountService;
 import com.exchange.c2c.service.AdvertService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,11 @@ import java.util.Optional;
 public class AdvertServiceImpl implements AdvertService {
     @Autowired
     private AdvertMapper advertMapper;
+    @Autowired
+    private CurrencyMapper currencyMapper;
+
+    @Autowired
+    private AccountService accountService;
 
     @Override
     public Advert findById(Integer id) {
@@ -66,6 +73,30 @@ public class AdvertServiceImpl implements AdvertService {
     }
 
     @Override
+    @Transactional
+    public void enable(Integer id) {
+        Advert advert = findById(id);
+        Integer currencyId = currencyMapper.findCurrencyIdByCode(advert.getCurrencyCode());
+        accountService.unfreeze(currencyId, advert.getCreateBy(), advert.getSurplusQuantity());
+
+        Advert temp = new Advert();
+        temp.setSurplusQuantity(BigDecimal.ZERO);
+        temp.setVersion(advert.getVersion() + 1);
+
+        QueryWrapper<Advert> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", advert.getId());
+        wrapper.eq("version", advert.getVersion());
+
+        advertMapper.update(advert, wrapper);
+    }
+
+    @Override
+    @Transactional
+    public void disable(Integer id) {
+
+    }
+
+    @Override
     public IPage<Advert> findAll(MyAdsForm form) {
         QueryWrapper<Advert> wrapper = new QueryWrapper<>();
         wrapper.eq("create_by", WebUtils.getUserId());
@@ -85,6 +116,15 @@ public class AdvertServiceImpl implements AdvertService {
         QueryWrapper<Advert> wrapper = new QueryWrapper<>();
         wrapper.eq("status", AdvertStatusEnum.ENABLE.getValue());
         wrapper.eq("type", form.getType());
+        if (!StringUtils.isEmpty(form.getCurrencyCode())) {
+            wrapper.eq("currency_code", form.getCurrencyCode());
+        }
+        if (!StringUtils.isEmpty(form.getLegalCurrencyCode())) {
+            wrapper.eq("legal_currency_code", form.getLegalCurrencyCode());
+        }
+        if (!StringUtils.isEmpty(form.getPayMode())) {
+            wrapper.like("pay_modes", form.getPayMode());
+        }
 
         return advertMapper.selectPage(new Page<>(form.getPageIndex(), form.getPageSize()), wrapper);
     }

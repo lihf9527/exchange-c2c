@@ -19,6 +19,16 @@ public interface AdvertService {
      */
     void decr(String adNo, BigDecimal quantity);
 
+    /**
+     * 上架广告
+     */
+    void enable(Integer id);
+
+    /**
+     * 下架广告
+     */
+    void disable(Integer id);
+
     IPage<Advert> findAll(MyAdsForm form);
 
     IPage<Advert> findAll(MarketAdvertForm form);

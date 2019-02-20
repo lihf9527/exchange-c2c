@@ -4,4 +4,12 @@
     <select id="findCurrencyIdByCode" resultType="java.lang.Integer">
         SELECT CURRENCY_ID FROM master_currencies WHERE `CODE` = #{code}
     </select>
+
+    <select id="findAllByType" resultType="com.exchange.c2c.model.CurrencyDTO">
+        SELECT `CODE`, `NAME` FROM master_currencies WHERE TYPE = #{type} ORDER BY SORT
+    </select>
+
+    <select id="existsByTypeAndCode" resultType="java.lang.Boolean">
+        SELECT COUNT(1) FROM master_currencies WHERE TYPE = #{type} AND `CODE` = #{code}
+    </select>
 </mapper>

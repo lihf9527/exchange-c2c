@@ -1,5 +1,6 @@
 package com.exchange.c2c.api;
 
+import com.exchange.c2c.common.EnumMsg;
 import com.exchange.c2c.common.Result;
 import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.page.PageList;
@@ -7,6 +8,7 @@ import com.exchange.c2c.common.util.*;
 import com.exchange.c2c.entity.PayMode;
 import com.exchange.c2c.entity.User;
 import com.exchange.c2c.enums.AccountTypeEnum;
+import com.exchange.c2c.enums.PayModeEnum;
 import com.exchange.c2c.enums.PayModeStatusEnum;
 import com.exchange.c2c.model.CreatePayModeForm;
 import com.exchange.c2c.model.PayModeDTO;
@@ -20,14 +22,12 @@ import io.swagger.annotations.ApiParam;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -129,11 +129,10 @@ public class PayModeController {
         return Result.success(payModeDTOS);
     }
 
-    @Login
-    @PostMapping("/all")
-    @ApiOperation(value = "转账方式列表", notes = "创建人: 李海峰")
-    public Result<?> all() {
-
-        return Result.SUCCESS;
+    @GetMapping("/all")
+    @ApiOperation(value = "支付方式下拉框", notes = "创建人: 李海峰")
+    public Result<Map<String, String>> all() {
+        val map = EnumUtils.getEnums(PayModeEnum.class).stream().collect(Collectors.toMap(EnumMsg::getValue, EnumMsg::getName));
+        return Result.success(map);
     }
 }
