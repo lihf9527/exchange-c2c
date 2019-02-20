@@ -51,7 +51,7 @@ public class AdvertController {
         advert.setCreateTime(LocalDateTime.now());
         advert.setStatus(AdvertStatusEnum.DISABLE.getValue());
         advert.setVersion(0L);
-        advertService.save(advert);
+        advertService.create(advert);
         return Result.success(advert.getId());
     }
 
@@ -74,7 +74,7 @@ public class AdvertController {
         advert.setUpdateBy(WebUtils.getUserId());
         advert.setUpdateTime(LocalDateTime.now());
         advert.setVersion(oldAdvert.getVersion());
-        advertService.save(advert);
+        advertService.update(advert);
         return Result.SUCCESS;
     }
 
@@ -82,9 +82,7 @@ public class AdvertController {
     @PostMapping("/enable")
     @ApiOperation(value = "上架广告", notes = "创建人: 李海峰")
     public Result<?> enable(@ApiParam("广告ID") @RequestParam Integer id) {
-        val advert = advertService.findById(id);
-        Assert.isEquals(AdvertStatusEnum.DISABLE.getValue(), advert.getStatus(), "广告已上架,不能重复上架");
-        
+        advertService.enable(id);
         return Result.SUCCESS;
     }
 
@@ -92,8 +90,7 @@ public class AdvertController {
     @PostMapping("/disable")
     @ApiOperation(value = "下架广告", notes = "创建人: 李海峰")
     public Result<?> disable(@ApiParam("广告ID") @RequestParam Integer id) {
-        val advert = advertService.findById(id);
-        Assert.isEquals(AdvertStatusEnum.ENABLE.getValue(), advert.getStatus(), "广告已下架,不能重复下架");
+        advertService.disable(id);
         return Result.SUCCESS;
     }
 

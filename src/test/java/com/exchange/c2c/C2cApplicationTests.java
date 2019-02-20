@@ -1,9 +1,8 @@
 package com.exchange.c2c;
 
-import com.exchange.c2c.mapper.AccountMapper;
-import com.exchange.c2c.mapper.CurrencyMapper;
-import com.exchange.c2c.mapper.FundTransactionMapper;
-import com.exchange.c2c.mapper.UserMapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.exchange.c2c.entity.Appeal;
+import com.exchange.c2c.mapper.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,27 @@ public class C2cApplicationTests {
     private FundTransactionMapper fundTransactionMapper;
     @Autowired
     private CurrencyMapper currencyMapper;
+    @Autowired
+    private AppealMapper appealMapper;
 
     @Test
     public void contextLoads() {
+
+    }
+
+    @Test
+    public void updateTest() {
+        Appeal appeal = new Appeal();
+        appeal.setId(1);
+        appeal.setTitle("abc");
+
+        QueryWrapper<Appeal> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", 1);
+        System.out.println(appealMapper.update(appeal, wrapper));
+    }
+
+    @Test
+    public void currencyTest() {
         System.out.println(currencyMapper.findCurrencyIdByCode("USDT"));
     }
 

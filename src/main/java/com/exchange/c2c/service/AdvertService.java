@@ -12,7 +12,9 @@ public interface AdvertService {
 
     Advert findByAdNo(String adNo);
 
-    void save(Advert advert);
+    void create(Advert advert);
+
+    void update(Advert advert);
 
     /**
      * 减少广告剩余数量

@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -46,13 +45,14 @@ public class AdvertServiceImpl implements AdvertService {
     }
 
     @Override
+    public void create(Advert advert) {
+        advertMapper.insert(advert);
+    }
+
+    @Override
     @Transactional
-    public void save(Advert advert) {
-        if (Objects.isNull(advert.getId())) {
-            advertMapper.insert(advert);
-        } else {
-            advertMapper.updateById(advert);
-        }
+    public void update(Advert advert) {
+        update(advert, advert.getId(), advert.getVersion());
     }
 
     @Override
@@ -63,37 +63,45 @@ public class AdvertServiceImpl implements AdvertService {
 
         Advert advert = new Advert();
         advert.setSurplusQuantity(oldAdvert.getSurplusQuantity().subtract(quantity));
-        advert.setVersion(oldAdvert.getVersion() + 1);
-
-        QueryWrapper<Advert> wrapper = new QueryWrapper<>();
-        wrapper.eq("id", oldAdvert.getId());
-        wrapper.eq("version", oldAdvert.getVersion());
-
-        advertMapper.update(advert, wrapper);
+        update(advert, oldAdvert.getId(), oldAdvert.getVersion());
     }
 
     @Override
     @Transactional
     public void enable(Integer id) {
-        Advert advert = findById(id);
-        Integer currencyId = currencyMapper.findCurrencyIdByCode(advert.getCurrencyCode());
-        accountService.unfreeze(currencyId, advert.getCreateBy(), advert.getSurplusQuantity());
-
-        Advert temp = new Advert();
-        temp.setSurplusQuantity(BigDecimal.ZERO);
-        temp.setVersion(advert.getVersion() + 1);
-
-        QueryWrapper<Advert> wrapper = new QueryWrapper<>();
-        wrapper.eq("id", advert.getId());
-        wrapper.eq("version", advert.getVersion());
-
-        advertMapper.update(advert, wrapper);
+        Advert oldAdvert = findById(id);
+        Assert.isEquals(AdvertStatusEnum.DISABLE.getValue(), oldAdvert.getStatus(), "广告已上架");
+        // 冻结资金
+        Integer currencyId = currencyMapper.findCurrencyIdByCode(oldAdvert.getCurrencyCode());
+        accountService.freeze(currencyId, oldAdvert.getCreateBy(), oldAdvert.getTotalQuantity());
+        // 修改广告状态为已上架
+        Advert advert = new Advert();
+        advert.setSurplusQuantity(advert.getTotalQuantity());
+        advert.setStatus(AdvertStatusEnum.ENABLE.getValue());
+        update(advert, oldAdvert.getId(), oldAdvert.getVersion());
     }
 
     @Override
     @Transactional
     public void disable(Integer id) {
+        Advert oldAdvert = findById(id);
+        Assert.isEquals(AdvertStatusEnum.ENABLE.getValue(), oldAdvert.getStatus(), "广告已下架");
+        // 解冻剩余资金
+        Integer currencyId = currencyMapper.findCurrencyIdByCode(oldAdvert.getCurrencyCode());
+        accountService.unfreeze(currencyId, oldAdvert.getCreateBy(), oldAdvert.getSurplusQuantity());
+        // 修改广告状态为已下架
+        Advert advert = new Advert();
+        advert.setSurplusQuantity(BigDecimal.ZERO);
+        advert.setStatus(AdvertStatusEnum.DISABLE.getValue());
+        update(advert, oldAdvert.getId(), oldAdvert.getVersion());
+    }
 
+    private void update(Advert advert, Integer id, Long version) {
+        advert.setVersion(version + 1);
+        QueryWrapper<Advert> wrapper = new QueryWrapper<>();
+        wrapper.eq("id", id);
+        wrapper.eq("version", version);
+        advertMapper.update(advert, wrapper);
     }
 
     @Override
