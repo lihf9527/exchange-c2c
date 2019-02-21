@@ -21,9 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Api(tags = "广告接口")
 @Validated
@@ -44,7 +41,6 @@ public class AdvertController {
     @ApiOperation(value = "新增广告", notes = "创建人: 李海峰")
     public Result<Integer> create(@Valid CreateAdvertForm form) {
         val advert = ApiBeanUtils.copyProperties(form, Advert::new);
-        advert.setPayModeIds(getPayModeIds(form.getPayModes()));
         advert.setAdNo(RandomUtils.serialNumber(6));
         advert.setSurplusQuantity(form.getTotalQuantity());
         advert.setCreateBy(WebUtils.getUserId());
@@ -53,12 +49,6 @@ public class AdvertController {
         advert.setVersion(0L);
         advertService.create(advert);
         return Result.success(advert.getId());
-    }
-
-    private String getPayModeIds(String payModes) {
-        List<Integer> accountTypes = payModeService.findAccountTypes(payModes.split(","));
-        List<Integer> ids = payModeService.findIds(WebUtils.getUserId(), accountTypes);
-        return ids.stream().map(Objects::toString).collect(Collectors.joining(","));
     }
 
     @Login
@@ -70,7 +60,6 @@ public class AdvertController {
         Assert.isEquals(AdvertStatusEnum.DISABLE.getValue(), oldAdvert.getStatus(), "只能修改已下架的广告");
 
         val advert = ApiBeanUtils.copyProperties(form, Advert::new);
-        advert.setPayModeIds(getPayModeIds(form.getPayModes()));
         advert.setUpdateBy(WebUtils.getUserId());
         advert.setUpdateTime(LocalDateTime.now());
         advert.setVersion(oldAdvert.getVersion());

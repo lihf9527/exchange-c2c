@@ -82,7 +82,7 @@ public class OrderDetail {
     /**
      * 卖方账户类型 1支付宝 2微信 3银行卡
      */
-    private Integer sellerAccountType;
+    private String sellerAccountType;
 
     /**
      * 卖方账户名

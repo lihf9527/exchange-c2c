@@ -8,7 +8,6 @@ import com.exchange.c2c.common.util.*;
 import com.exchange.c2c.entity.Advert;
 import com.exchange.c2c.entity.Order;
 import com.exchange.c2c.entity.OrderDetail;
-import com.exchange.c2c.entity.PayMode;
 import com.exchange.c2c.enums.*;
 import com.exchange.c2c.model.*;
 import com.exchange.c2c.service.*;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.Validator;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -46,6 +46,9 @@ public class OrderController {
     private UserService userService;
     @Autowired
     private PayModeService payModeService;
+
+    @Autowired
+    private Validator validator;
 
     @Login
     @PostMapping("/create")
@@ -84,7 +87,9 @@ public class OrderController {
         order.setCreateBy(WebUtils.getUserId());
         order.setCreateTime(LocalDateTime.now());
 
-        PayMode payMode = payModeService.findEnabled(order.getSellerId(), Integer.valueOf(form.getPayMode()));
+        val enabled = payModeService.findEnabled(order.getSellerId(), form.getPayMode());
+        Assert.isFalse(enabled.isEmpty(), "支付方式未启用");
+        val payMode = enabled.get(0);
 
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setOrderNo(order.getOrderNo());
@@ -178,14 +183,16 @@ public class OrderController {
     @Login
     @PostMapping("/current")
     @ApiOperation(value = "当前订单", notes = "创建人: 李海峰")
-    public Result<PageList<OrderDTO>> current(@Validated(CurrentOrderStatusEnum.class) QueryOrderForm form) {
+    public Result<PageList<OrderDTO>> current(@Valid QueryOrderForm form) {
+        validator.validate(form, QueryOrderForm.Current.class);
         return Result.success(convertToPageList(orderService.findAll(form, CurrentOrderStatusEnum.class)));
     }
 
     @Login
     @PostMapping("/history")
     @ApiOperation(value = "历史订单", notes = "创建人: 李海峰")
-    public Result<PageList<OrderDTO>> history(@Validated(HistoryOrderStatusEnum.class) QueryOrderForm form) {
+    public Result<PageList<OrderDTO>> history(@Valid QueryOrderForm form) {
+        validator.validate(form, QueryOrderForm.History.class);
         return Result.success(convertToPageList(orderService.findAll(form, HistoryOrderStatusEnum.class)));
     }
 

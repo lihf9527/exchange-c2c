@@ -1,19 +1,17 @@
 package com.exchange.c2c.api;
 
-import com.exchange.c2c.common.EnumMsg;
 import com.exchange.c2c.common.Result;
 import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.page.PageList;
-import com.exchange.c2c.common.util.*;
+import com.exchange.c2c.common.util.ApiBeanUtils;
+import com.exchange.c2c.common.util.Assert;
+import com.exchange.c2c.common.util.ValidationUtils;
+import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.PayMode;
-import com.exchange.c2c.entity.User;
 import com.exchange.c2c.enums.AccountTypeEnum;
-import com.exchange.c2c.enums.PayModeEnum;
 import com.exchange.c2c.enums.PayModeStatusEnum;
-import com.exchange.c2c.model.CreatePayModeForm;
-import com.exchange.c2c.model.PayModeDTO;
-import com.exchange.c2c.model.PayModeForm;
-import com.exchange.c2c.model.UpdatePayModeForm;
+import com.exchange.c2c.model.*;
+import com.exchange.c2c.service.ConfigService;
 import com.exchange.c2c.service.GoogleAuthService;
 import com.exchange.c2c.service.PayModeService;
 import io.swagger.annotations.Api;
@@ -27,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -40,6 +37,8 @@ public class PayModeController {
     private PayModeService payModeService;
     @Autowired
     private GoogleAuthService googleAuthService;
+    @Autowired
+    private ConfigService configService;
 
     @Login
     @PostMapping("/create")
@@ -58,12 +57,12 @@ public class PayModeController {
             ValidationUtils.validate(form, CreatePayModeForm.BankCard.class);
         }
 
-        User loginUser = WebUtils.getLoginUser();
-        Assert.isEquals(1, loginUser.getGaEnabled(), "未绑定谷歌");
-
-        String secret = EncryptionUtil.decrypt(loginUser.getGaSecurityKey());
-        boolean valid = googleAuthService.checkCode(secret, Long.parseLong(form.getGoogleCode()), System.currentTimeMillis());
-        Assert.isTrue(valid, "谷歌验证码错误");
+//        User loginUser = WebUtils.getLoginUser();
+//        Assert.isEquals(1, loginUser.getGaEnabled(), "未绑定谷歌");
+//
+//        String secret = EncryptionUtil.decrypt(loginUser.getGaSecurityKey());
+//        boolean valid = googleAuthService.checkCode(secret, Long.parseLong(form.getGoogleCode()), System.currentTimeMillis());
+//        Assert.isTrue(valid, "谷歌验证码错误");
 
         PayMode payMode = ApiBeanUtils.copyProperties(form, PayMode::new);
         payMode.setUpdateTime(LocalDateTime.now());
@@ -123,16 +122,32 @@ public class PayModeController {
     @PostMapping("/isEnabled")
     @ApiOperation(value = "支付方式是否启用", notes = "创建人: 李海峰")
     public Result<List<PayModeDTO>> isEnabled(String payModes) {
-        val accountTypes = payModeService.findAccountTypes(payModes.split(","));
-        val payModeList = payModeService.findEnabled(WebUtils.getUserId(), accountTypes);
+        val payModeList = payModeService.findEnabled(WebUtils.getUserId(), payModes.split(","));
         val payModeDTOS = payModeList.stream().map(e -> ApiBeanUtils.copyProperties(e, PayModeDTO::new)).collect(Collectors.toList());
         return Result.success(payModeDTOS);
     }
 
+    @Login
+    @GetMapping("/enabled")
+    @ApiOperation(value = "已启用的支付方式下拉框", notes = "创建人: 李海峰")
+    public Result<List<AccountTypeDTO>> enabled() {
+        val accountTypes = payModeService.findEnabled(WebUtils.getUserId()).stream().map(PayMode::getAccountType).collect(Collectors.toList());
+        val list = getAccountTypeDTOS().stream().filter(e -> accountTypes.contains(e.getValue())).collect(Collectors.toList());
+        return Result.success(list);
+    }
+
     @GetMapping("/all")
     @ApiOperation(value = "支付方式下拉框", notes = "创建人: 李海峰")
-    public Result<Map<String, String>> all() {
-        val map = EnumUtils.getEnums(PayModeEnum.class).stream().collect(Collectors.toMap(EnumMsg::getValue, EnumMsg::getName));
-        return Result.success(map);
+    public Result<List<AccountTypeDTO>> all() {
+        return Result.success(getAccountTypeDTOS());
+    }
+
+    private List<AccountTypeDTO> getAccountTypeDTOS() {
+        return configService.findAll("account_type").stream().map(config -> {
+            AccountTypeDTO dto = new AccountTypeDTO();
+            dto.setValue(config.getValue());
+            dto.setName(config.getText());
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

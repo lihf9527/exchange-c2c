@@ -1,7 +1,6 @@
 package com.exchange.c2c.model;
 
-import com.exchange.c2c.common.annotation.EnumValue;
-import com.exchange.c2c.enums.AccountTypeEnum;
+import com.exchange.c2c.common.annotation.ConfigValue;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,7 +18,7 @@ public class CreatePayModeForm {
     @ApiModelProperty("账户名")
     private String accountName;
 
-    @EnumValue(message = "账号类型枚举值不正确", enumClass = AccountTypeEnum.class)
+    @ConfigValue(message = "账号类型枚举值不正确", prefix = "account_type")
     @NotNull(message = "账号类型不能为空")
     @ApiModelProperty("账号类型: 1 - 支付宝, 2 - 微信, 3 - 银行卡")
     private Integer accountType;

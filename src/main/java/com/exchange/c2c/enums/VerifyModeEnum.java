@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum AccountTypeEnum implements EnumMsg<String> {
-    Alipay("1", "支付宝"),
-    Wechat("2", "微信"),
-    BANK_CARD("3", "银行卡");
+public enum VerifyModeEnum implements EnumMsg<Integer> {
+    PHONE(1, "手机验证"),
+    EMAIL(2, "邮箱验证"),
+    GOOGLE(3, "谷歌验证");
 
-    private String value;
+    private Integer value;
     private String name;
 }

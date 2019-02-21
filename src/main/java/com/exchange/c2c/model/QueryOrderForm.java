@@ -19,8 +19,15 @@ public class QueryOrderForm extends PageForm {
     @ApiModelProperty("交易类型 1购买 2出售")
     private Integer type;
 
-    @EnumValue(message = "订单状态枚举值不正确", enumClass = CurrentOrderStatusEnum.class, nullable = true, groups = CurrentOrderStatusEnum.class)
-    @EnumValue(message = "订单状态枚举值不正确", enumClass = HistoryOrderStatusEnum.class, nullable = true, groups = HistoryOrderStatusEnum.class)
+    @EnumValue(message = "订单状态枚举值不正确", enumClass = CurrentOrderStatusEnum.class, nullable = true, groups = Current.class)
+    @EnumValue(message = "订单状态枚举值不正确", enumClass = HistoryOrderStatusEnum.class, nullable = true, groups = History.class)
     @ApiModelProperty("订单状态 1待支付 2待确认 3已取消 4申诉中 5已完成 当前订单(1,2,4) 历史订单(3,5)")
     private Integer status;
+
+    public interface Current {
+    }
+
+    public interface History {
+    }
+
 }

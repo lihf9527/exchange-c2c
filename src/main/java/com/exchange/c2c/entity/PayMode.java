@@ -1,5 +1,7 @@
 package com.exchange.c2c.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -14,12 +16,13 @@ public class PayMode {
     /**
      * 主键ID
      */
+    @TableId(type = IdType.AUTO)
     private Integer id;
 
     /**
      * 账号类型 1支付宝 2微信 3银行卡
      */
-    private Integer accountType;
+    private String accountType;
 
     /**
      * 账户名

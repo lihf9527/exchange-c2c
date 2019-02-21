@@ -1,8 +1,8 @@
 package com.exchange.c2c.model;
 
+import com.exchange.c2c.common.annotation.ConfigValue;
 import com.exchange.c2c.common.annotation.EnumValue;
 import com.exchange.c2c.enums.AdvertTypeEnum;
-import com.exchange.c2c.enums.PayModeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -63,7 +63,7 @@ public class CreateAdvertForm {
     @ApiModelProperty("广告备注")
     private String remark;
 
-    @EnumValue(message = "支付方式枚举值不正确", enumClass = PayModeEnum.class, multiple = true)
+    @ConfigValue(message = "支付方式枚举值不正确", prefix = "account_type", multiple = true)
     @NotEmpty(message = "支付方式不能为空")
     @ApiModelProperty("支付方式, 多种用逗号分隔")
     private String payModes;

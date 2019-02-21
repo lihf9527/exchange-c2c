@@ -58,10 +58,10 @@ public class UserDTO {
     @ApiModelProperty("交易频率")
     private Byte transactionPasswordFre;
 
-    @ApiModelProperty("gaEnabled")
+    @ApiModelProperty("是否开启谷歌验证码")
     private Byte gaEnabled;
 
-    @ApiModelProperty("gaSecurityKey")
+    @ApiModelProperty("谷歌验证码秘钥")
     private String gaSecurityKey;
 
     @ApiModelProperty("逻辑删除: 1已删除, 0未删除")

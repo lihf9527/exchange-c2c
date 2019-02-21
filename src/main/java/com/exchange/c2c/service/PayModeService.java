@@ -15,7 +15,7 @@ public interface PayModeService {
 
     void disable(Integer id);
 
-    void disable(Long userId, Integer accountType);
+    void disable(Long userId, String accountType);
 
     IPage<PayMode> findAll(PayModeForm form);
 
@@ -26,13 +26,5 @@ public interface PayModeService {
      * @param accountTypes {@link com.exchange.c2c.enums.AccountTypeEnum}
      * @return 已启用的支付方式
      */
-    List<PayMode> findEnabled(Long userId, List<Integer> accountTypes);
-
-    PayMode findEnabled(Long userId, Integer accountType);
-
-    PayMode findByIdsAndAccountType(List<Integer> ids, Integer accountType);
-
-    List<Integer> findIds(Long userId, List<Integer> accountTypes);
-
-    List<Integer> findAccountTypes(String... payModes);
+    List<PayMode> findEnabled(Long userId, String... accountTypes);
 }

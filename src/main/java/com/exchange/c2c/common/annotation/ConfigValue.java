@@ -20,6 +20,12 @@ public @interface ConfigValue {
 
     String prefix();
 
+    boolean nullable() default false;
+
+    boolean multiple() default false;
+
+    String delimiter() default ",";
+
     @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
     @Retention(RetentionPolicy.RUNTIME)
     @Documented

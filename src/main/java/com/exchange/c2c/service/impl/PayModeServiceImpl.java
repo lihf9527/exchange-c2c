@@ -5,12 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.exchange.c2c.common.exception.BizException;
-import com.exchange.c2c.common.util.Assert;
-import com.exchange.c2c.common.util.EnumUtils;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.PayMode;
-import com.exchange.c2c.enums.AccountTypeEnum;
-import com.exchange.c2c.enums.PayModeEnum;
 import com.exchange.c2c.enums.PayModeStatusEnum;
 import com.exchange.c2c.mapper.PayModeMapper;
 import com.exchange.c2c.model.PayModeForm;
@@ -20,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class PayModeServiceImpl implements PayModeService {
@@ -66,12 +64,12 @@ public class PayModeServiceImpl implements PayModeService {
 
     @Override
     @Transactional
-    public void disable(Long userId, Integer accountType) {
+    public void disable(Long userId, String accountType) {
         PayMode temp = new PayMode();
         temp.setStatus(PayModeStatusEnum.DISABLE.getValue());
 
         UpdateWrapper<PayMode> wrapper = new UpdateWrapper<>();
-        wrapper.eq("user_id", userId);
+        wrapper.eq("create_by", userId);
         wrapper.eq("account_type", accountType);
 
         payModeMapper.update(temp, wrapper);
@@ -80,7 +78,7 @@ public class PayModeServiceImpl implements PayModeService {
     @Override
     public IPage<PayMode> findAll(PayModeForm form) {
         QueryWrapper<PayMode> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", WebUtils.getUserId());
+        wrapper.eq("create_by", WebUtils.getUserId());
         if (Objects.nonNull(form.getAccountType())) {
             wrapper.eq("account_type", form.getAccountType());
         }
@@ -92,44 +90,13 @@ public class PayModeServiceImpl implements PayModeService {
     }
 
     @Override
-    public List<PayMode> findEnabled(Long userId, List<Integer> accountTypes) {
+    public List<PayMode> findEnabled(Long userId, String... accountTypes) {
         QueryWrapper<PayMode> wrapper = new QueryWrapper<>();
-        wrapper.eq("user_id", userId);
+        wrapper.eq("create_by", userId);
         wrapper.eq("status", PayModeStatusEnum.ENABLE.getValue());
-        wrapper.in("account_type", accountTypes);
+        if (Objects.nonNull(accountTypes)) {
+            wrapper.in("account_type", Arrays.asList(accountTypes));
+        }
         return payModeMapper.selectList(wrapper);
-    }
-
-    @Override
-    public PayMode findEnabled(Long userId, Integer accountType) {
-        List<PayMode> list = findEnabled(userId, Collections.singletonList(accountType));
-        return list.isEmpty() ? null : list.get(0);
-    }
-
-    @Override
-    public PayMode findByIdsAndAccountType(List<Integer> ids, Integer accountType) {
-        QueryWrapper<PayMode> wrapper = new QueryWrapper<>();
-        wrapper.in("id", ids);
-        wrapper.eq("account_type", accountType);
-        List<PayMode> payModes = payModeMapper.selectList(wrapper);
-        Assert.isTrue(!payModes.isEmpty() && payModes.size() == 1, "购买失败,请联系卖家更新广告");
-        return payModes.get(0);
-    }
-
-    @Override
-    public List<Integer> findIds(Long userId, List<Integer> accountTypes) {
-        List<PayMode> payModeList = findEnabled(userId, accountTypes);
-        Assert.isEquals(accountTypes.size(), payModeList.size(), "支付方式未启用");
-        return payModeList.stream().map(PayMode::getId).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Integer> findAccountTypes(String... payModes) {
-        return Arrays.stream(payModes)
-                .map(e -> EnumUtils.toEnum(e, PayModeEnum.class))
-                .filter(Objects::nonNull)
-                .map(PayModeEnum::getAccountType)
-                .map(AccountTypeEnum::getValue)
-                .collect(Collectors.toList());
     }
 }
