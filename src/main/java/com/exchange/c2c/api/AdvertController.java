@@ -82,6 +82,8 @@ public class AdvertController {
     @PostMapping("/enable")
     @ApiOperation(value = "上架广告", notes = "创建人: 李海峰")
     public Result<?> enable(@ApiParam("广告ID") @RequestParam Integer id) {
+        val advert = advertService.findById(id);
+        Assert.isEquals(advert.getCreateBy(), WebUtils.getUserId(), "非法操作");
         advertService.enable(id);
         return Result.SUCCESS;
     }
@@ -90,6 +92,8 @@ public class AdvertController {
     @PostMapping("/disable")
     @ApiOperation(value = "下架广告", notes = "创建人: 李海峰")
     public Result<?> disable(@ApiParam("广告ID") @RequestParam Integer id) {
+        val advert = advertService.findById(id);
+        Assert.isEquals(advert.getCreateBy(), WebUtils.getUserId(), "非法操作");
         advertService.disable(id);
         return Result.SUCCESS;
     }

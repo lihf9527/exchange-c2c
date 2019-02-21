@@ -101,7 +101,8 @@ public class AdvertServiceImpl implements AdvertService {
         QueryWrapper<Advert> wrapper = new QueryWrapper<>();
         wrapper.eq("id", id);
         wrapper.eq("version", version);
-        advertMapper.update(advert, wrapper);
+        int rows = advertMapper.update(advert, wrapper);
+        Assert.isTrue(rows > 0, "操作失败,请稍候再试");
     }
 
     @Override
