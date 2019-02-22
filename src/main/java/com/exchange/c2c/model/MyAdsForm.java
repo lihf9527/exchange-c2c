@@ -17,5 +17,5 @@ public class MyAdsForm extends PageForm {
 
     @EnumValue(message = "广告状态枚举值不正确", enumClass = AdvertStatusEnum.class, nullable = true)
     @ApiModelProperty("广告状态 1上架 0下架")
-    private String status;
+    private Integer status;
 }

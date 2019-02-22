@@ -1,6 +1,8 @@
 package com.exchange.c2c.model;
 
 import com.exchange.c2c.common.annotation.ConfigValue;
+import com.exchange.c2c.common.annotation.EnumValue;
+import com.exchange.c2c.enums.VerifyModeEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -41,10 +43,15 @@ public class CreatePayModeForm {
     @ApiModelProperty("开户支行")
     private String branchBank;
 
-    @Pattern(message = "谷歌验证码格式错误", regexp = "\\d{6}")
-    @NotEmpty(message = "谷歌验证码不能为空")
-    @ApiModelProperty("谷歌验证码")
-    private String googleCode;
+    @EnumValue(message = "验证方式枚举值不正确", enumClass = VerifyModeEnum.class)
+    @NotNull(message = "验证方式不能为空")
+    @ApiModelProperty("验证方式 1手机验证 2邮箱验证 3谷歌验证")
+    private Integer verifyMode;
+
+    @Pattern(message = "验证码格式错误", regexp = "\\d{6}")
+    @NotEmpty(message = "验证码不能为空")
+    @ApiModelProperty("验证码")
+    private String code;
 
     public interface BankCard {
 

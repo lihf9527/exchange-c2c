@@ -14,17 +14,14 @@ public class PayModeDTO {
     @ApiModelProperty("支付方式ID")
     private Integer id;
 
-    @ApiModelProperty("用户ID")
-    private Long userId;
-
-    @ApiModelProperty("姓名")
-    private String userName;
+    @ApiModelProperty("账户名")
+    private String accountName;
 
     @ApiModelProperty("账户类型 1支付宝 2微信 3银行卡")
-    private Integer accountType;
+    private String accountType;
 
     @ApiModelProperty("微信/支付宝/银行卡 账号")
-    private String account;
+    private String accountNumber;
 
     @ApiModelProperty("微信/支付宝 二维码")
     private String qrCode;

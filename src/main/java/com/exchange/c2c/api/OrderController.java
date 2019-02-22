@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.validation.Validator;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -47,9 +47,6 @@ public class OrderController {
     @Autowired
     private PayModeService payModeService;
 
-    @Autowired
-    private Validator validator;
-
     @Login
     @PostMapping("/create")
     @ApiOperation(value = "提交订单", notes = "创建人: 李海峰")
@@ -69,7 +66,9 @@ public class OrderController {
         Assert.isTrue(!quantityLtMin && !quantityGtMax || !totalPriceLtMin && !totalPriceGtMax, "超出限额");
 
         BigDecimal totalPrice = advert.getPrice().multiply(form.getQuantity());
-        Assert.isEquals(form.getTotalPrice(), NumberUtils.format(totalPrice), "总价计算错误");
+        BigDecimal quantity = form.getTotalPrice().divide(advert.getPrice(), 4, RoundingMode.DOWN);
+        Assert.isTrue(Objects.equals(form.getTotalPrice(), NumberUtils.format(totalPrice))
+                || Objects.equals(form.getQuantity(), quantity), "价格计算错误");
 
         boolean isBuyAd = Objects.equals(AdvertTypeEnum.BUY.getValue(), advert.getType());
 
@@ -184,7 +183,7 @@ public class OrderController {
     @PostMapping("/current")
     @ApiOperation(value = "当前订单", notes = "创建人: 李海峰")
     public Result<PageList<OrderDTO>> current(@Valid QueryOrderForm form) {
-        validator.validate(form, QueryOrderForm.Current.class);
+        ValidationUtils.validate(form, QueryOrderForm.Current.class);
         return Result.success(convertToPageList(orderService.findAll(form, CurrentOrderStatusEnum.class)));
     }
 
@@ -192,7 +191,7 @@ public class OrderController {
     @PostMapping("/history")
     @ApiOperation(value = "历史订单", notes = "创建人: 李海峰")
     public Result<PageList<OrderDTO>> history(@Valid QueryOrderForm form) {
-        validator.validate(form, QueryOrderForm.History.class);
+        ValidationUtils.validate(form, QueryOrderForm.History.class);
         return Result.success(convertToPageList(orderService.findAll(form, HistoryOrderStatusEnum.class)));
     }
 

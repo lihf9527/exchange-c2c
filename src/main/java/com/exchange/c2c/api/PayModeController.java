@@ -52,11 +52,13 @@ public class PayModeController {
         return Result.success(payMode.getId());
     }
 
-    private PayMode buildPayMode(CreatePayModeForm form) {
+    private void verification(CreatePayModeForm form) {
         if (Objects.equals(AccountTypeEnum.BANK_CARD.getValue(), form.getAccountType())) {
             ValidationUtils.validate(form, CreatePayModeForm.BankCard.class);
         }
+    }
 
+    private PayMode buildPayMode(CreatePayModeForm form) {
 //        User loginUser = WebUtils.getLoginUser();
 //        Assert.isEquals(1, loginUser.getGaEnabled(), "未绑定谷歌");
 //
@@ -85,8 +87,8 @@ public class PayModeController {
     public Result<PayModeDTO> info(@RequestParam @ApiParam("支付方式ID") Integer id) {
         val payMode = payModeService.findById(id);
         Assert.isEquals(payMode.getCreateBy(), WebUtils.getUserId(), "非法操作");
-        val model = ApiBeanUtils.copyProperties(payMode, PayModeDTO::new);
-        return Result.success(model);
+        val payModeDTO = ApiBeanUtils.copyProperties(payMode, PayModeDTO::new);
+        return Result.success(payModeDTO);
     }
 
     @Login
@@ -119,9 +121,9 @@ public class PayModeController {
     }
 
     @Login
-    @PostMapping("/isEnabled")
-    @ApiOperation(value = "支付方式是否启用", notes = "创建人: 李海峰")
-    public Result<List<PayModeDTO>> isEnabled(String payModes) {
+    @GetMapping("/isEnabled")
+    @ApiOperation(value = "已启用的支付方式列表", notes = "创建人: 李海峰")
+    public Result<List<PayModeDTO>> isEnabled(@ApiParam("支付方式 1支付宝 2微信 3银行卡,多个用逗号分隔") @RequestParam String payModes) {
         val payModeList = payModeService.findEnabled(WebUtils.getUserId(), payModes.split(","));
         val payModeDTOS = payModeList.stream().map(e -> ApiBeanUtils.copyProperties(e, PayModeDTO::new)).collect(Collectors.toList());
         return Result.success(payModeDTOS);

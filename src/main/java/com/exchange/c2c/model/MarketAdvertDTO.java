@@ -9,11 +9,17 @@ import java.math.BigDecimal;
 @Data
 @ApiModel
 public class MarketAdvertDTO {
+    @ApiModelProperty("广告编号")
+    private String adNo;
+
     @ApiModelProperty("商家名称")
     private String sellerName;
 
     @ApiModelProperty("成单数")
     private Long count;
+
+    @ApiModelProperty("交易笔数")
+    private Long totalCount;
 
     @ApiModelProperty("完成率")
     private String ratio;
@@ -46,11 +52,14 @@ public class MarketAdvertDTO {
     private BigDecimal moneyLimitMax;
 
     @ApiModelProperty("支付方式 1支付宝, 2微信, 3银行卡")
-    private String pay_modes;
+    private String payModes;
 
     @ApiModelProperty("商家备注")
     private String remark;
 
+    @ApiModelProperty("广告状态 1上架 0下架")
+    private Integer status;
+
     @ApiModelProperty("广告类型 1购买 2出售")
-    private String type;
+    private Integer type;
 }

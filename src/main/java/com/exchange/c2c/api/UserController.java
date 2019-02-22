@@ -1,8 +1,8 @@
 package com.exchange.c2c.api;
 
 import com.exchange.c2c.common.Result;
-import com.exchange.c2c.service.UserService;
 import com.exchange.c2c.model.LoginForm;
+import com.exchange.c2c.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 
 @Api(tags = "用户接口")
 @Validated
@@ -28,13 +26,5 @@ public class UserController {
     public Result<String> login(@Valid LoginForm form) {
         String token = userService.login(form);
         return Result.success(token);
-    }
-
-    @PostMapping("/test")
-    public Map<String, String> test() {
-        Map<String, String> map = new HashMap<>();
-        map.put("a", "aa");
-        map.put("b", "bb");
-        return map;
     }
 }

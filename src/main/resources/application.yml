@@ -6,3 +6,14 @@ mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
+
+email:
+  appid: 14049
+  appkey: 5dd04764f4af22a2c64e16e2a9720c31
+  from: service@email.lex.pe
+  url: https://api.mysubmail.com/mail/send
+
+sms:
+  account: I6352304
+  password: k41aXfw5vJbea2
+  url: http://intapi.sgap.253.com/send/json

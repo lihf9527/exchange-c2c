@@ -1,8 +1,11 @@
 package com.exchange.c2c;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.exchange.c2c.common.util.RandomUtils;
 import com.exchange.c2c.entity.Appeal;
 import com.exchange.c2c.mapper.*;
+import com.exchange.c2c.service.EmailService;
+import com.exchange.c2c.service.SmsService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +32,28 @@ public class C2cApplicationTests {
     private CurrencyMapper currencyMapper;
     @Autowired
     private AppealMapper appealMapper;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private SmsService smsService;
 
     @Test
     public void contextLoads() {
 
+    }
+
+    @Test
+    public void smsTest() {
+        String template = "【ALiCoin】您的验证码：#code#，为了保护您的账户安全，请不要把验证码透露给别人";
+        String msg = template.replace("#code#", RandomUtils.randomString(6));
+        System.out.println(smsService.send("18397691556", msg));
+    }
+
+    @Test
+    public void emailTest() {
+        String template = "【ALiCoin】您的验证码：#code#，为了保护您的账户安全，请不要把验证码透露给别人";
+        String text = template.replace("#code#", RandomUtils.randomString(6));
+        System.out.println(emailService.send("lihf@sina.cn", "ALiCoin", text));
     }
 
     @Test
