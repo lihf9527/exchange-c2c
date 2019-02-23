@@ -20,7 +20,6 @@ public class PaymentConfirmForm {
     @ApiModelProperty("支付方式 1支付宝 2微信 3银行卡")
     private String payMode;
 
-    @NotEmpty(message = "支付凭证不能为空")
     @ApiModelProperty("支付凭证")
     private String voucher;
 }

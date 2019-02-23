@@ -66,7 +66,7 @@ public class AdvertController {
     }
 
     @Login
-    @PostMapping("/enable")
+    @GetMapping("/enable")
     @ApiOperation(value = "上架广告", notes = "创建人: 李海峰")
     public Result<?> enable(@ApiParam("广告ID") @RequestParam Integer id) {
         val advert = advertService.findById(id);
@@ -76,7 +76,7 @@ public class AdvertController {
     }
 
     @Login
-    @PostMapping("/disable")
+    @GetMapping("/disable")
     @ApiOperation(value = "下架广告", notes = "创建人: 李海峰")
     public Result<?> disable(@ApiParam("广告ID") @RequestParam Integer id) {
         val advert = advertService.findById(id);

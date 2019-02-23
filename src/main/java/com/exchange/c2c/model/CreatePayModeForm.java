@@ -23,7 +23,7 @@ public class CreatePayModeForm {
     @ConfigValue(message = "账号类型枚举值不正确", prefix = "account_type")
     @NotNull(message = "账号类型不能为空")
     @ApiModelProperty("账号类型: 1 - 支付宝, 2 - 微信, 3 - 银行卡")
-    private Integer accountType;
+    private String accountType;
 
     @Size(message = "账号长度不能大于20", max = 20)
     @NotEmpty(message = "账号不能为空")

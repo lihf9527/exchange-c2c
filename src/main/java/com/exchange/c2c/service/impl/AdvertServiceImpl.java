@@ -8,6 +8,7 @@ import com.exchange.c2c.common.util.Assert;
 import com.exchange.c2c.common.util.WebUtils;
 import com.exchange.c2c.entity.Advert;
 import com.exchange.c2c.enums.AdvertStatusEnum;
+import com.exchange.c2c.enums.AdvertTypeEnum;
 import com.exchange.c2c.mapper.AdvertMapper;
 import com.exchange.c2c.mapper.CurrencyMapper;
 import com.exchange.c2c.model.MarketAdvertForm;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -61,9 +63,16 @@ public class AdvertServiceImpl implements AdvertService {
         Advert oldAdvert = findByAdNo(adNo);
         Assert.isEquals(AdvertStatusEnum.ENABLE.getValue(), oldAdvert.getStatus(), "广告已下架");
 
+        BigDecimal surplusQuantity = oldAdvert.getSurplusQuantity().subtract(quantity);
+        Assert.isFalse(surplusQuantity.signum() < 0, "广告剩余数量不足");
+
         Advert advert = new Advert();
-        advert.setSurplusQuantity(oldAdvert.getSurplusQuantity().subtract(quantity));
+        advert.setSurplusQuantity(surplusQuantity);
         update(advert, oldAdvert.getId(), oldAdvert.getVersion());
+
+        if (surplusQuantity.signum() == 0) {
+            disable(oldAdvert.getId());
+        }
     }
 
     @Override
@@ -71,9 +80,10 @@ public class AdvertServiceImpl implements AdvertService {
     public void enable(Integer id) {
         Advert oldAdvert = findById(id);
         Assert.isEquals(AdvertStatusEnum.DISABLE.getValue(), oldAdvert.getStatus(), "广告已上架");
-        // 冻结资金
-        Integer currencyId = currencyMapper.findCurrencyIdByCode(oldAdvert.getCurrencyCode());
-        accountService.freeze(currencyId, oldAdvert.getCreateBy(), oldAdvert.getTotalQuantity());
+        if (Objects.equals(AdvertTypeEnum.SELL.getValue(), oldAdvert.getType())) {// 如果是出售,冻结资金
+            Integer currencyId = currencyMapper.findCurrencyIdByCode(oldAdvert.getCurrencyCode());
+            accountService.freeze(currencyId, oldAdvert.getCreateBy(), oldAdvert.getTotalQuantity());
+        }
         // 修改广告状态为已上架
         Advert advert = new Advert();
         advert.setSurplusQuantity(advert.getTotalQuantity());
@@ -86,9 +96,10 @@ public class AdvertServiceImpl implements AdvertService {
     public void disable(Integer id) {
         Advert oldAdvert = findById(id);
         Assert.isEquals(AdvertStatusEnum.ENABLE.getValue(), oldAdvert.getStatus(), "广告已下架");
-        // 解冻剩余资金
-        Integer currencyId = currencyMapper.findCurrencyIdByCode(oldAdvert.getCurrencyCode());
-        accountService.unfreeze(currencyId, oldAdvert.getCreateBy(), oldAdvert.getSurplusQuantity());
+        if (Objects.equals(AdvertTypeEnum.SELL.getValue(), oldAdvert.getType())) {// 如果是出售,解冻剩余资金
+            Integer currencyId = currencyMapper.findCurrencyIdByCode(oldAdvert.getCurrencyCode());
+            accountService.unfreeze(currencyId, oldAdvert.getCreateBy(), oldAdvert.getSurplusQuantity());
+        }
         // 修改广告状态为已下架
         Advert advert = new Advert();
         advert.setSurplusQuantity(BigDecimal.ZERO);

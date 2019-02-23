@@ -155,6 +155,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void create(Order order, OrderDetail orderDetail) {
+        if (Objects.equals(order.getSellerId(), order.getCreateBy())) {// 如果卖方是用户,冻结用户的资金
+            Integer currencyId = currencyMapper.findCurrencyIdByCode(order.getCurrencyCode());
+            accountService.freeze(currencyId, order.getSellerId(), order.getQuantity());
+        }
+
         orderMapper.insert(order);
         orderDetailMapper.insert(orderDetail);
         advertService.decr(orderDetail.getAdNo(), order.getQuantity());

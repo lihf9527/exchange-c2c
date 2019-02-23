@@ -39,6 +39,12 @@ public class OrderInfoDTO {
     @ApiModelProperty("总价")
     private BigDecimal totalPrice;
 
+    @ApiModelProperty("币种编号")
+    private String currencyCode;
+
+    @ApiModelProperty("法币编号")
+    private String legalCurrencyCode;
+
     @ApiModelProperty("订单状态 1待支付 2待确认 3已取消 4申诉中 5已完成")
     private Integer status;
 
@@ -66,7 +72,7 @@ public class OrderInfoDTO {
 
 
     @ApiModelProperty("卖方收款账户类型 1支付宝 2微信 3银行卡")
-    private Integer sellerAccountType;
+    private String sellerAccountType;
 
     @ApiModelProperty("卖方收款账户名")
     private String sellerAccountName;

@@ -41,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
     public void unfreeze(Integer currencyId, Long userId, BigDecimal amount) {
         Account account = findOne(userId, currencyId);
         BigDecimal frozenAmount = account.getFrozenAmount().subtract(amount);
-        Assert.isTrue(frozenAmount.signum() >= 0, "冻结余额不足");
+        Assert.isFalse(frozenAmount.signum() < 0, "冻结余额不足");
         boolean result = updateAmount(account.getAccountId(), account.getVersion(), account.getAvailableAmount().add(amount), frozenAmount);
         Assert.isTrue(result, "解冻失败,请稍候重试");
     }
@@ -52,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
         Account sourceAccount = findOne(sourceUserId, currencyId);
         Account targetAccount = findOne(targetUserId, currencyId);
         BigDecimal frozenAmount = sourceAccount.getFrozenAmount().subtract(amount);
-        Assert.isEquals(-1, frozenAmount, "冻结余额不足");
+        Assert.isFalse(frozenAmount.signum() < 0, "冻结余额不足");
         boolean result1 = updateAmount(sourceAccount.getAccountId(), sourceAccount.getVersion(), null, frozenAmount);
         boolean result2 = updateAmount(targetAccount.getAccountId(), targetAccount.getVersion(), targetAccount.getAvailableAmount().add(amount), null);
         Assert.isTrue(result1 && result2, "交易失败,请稍候重试");

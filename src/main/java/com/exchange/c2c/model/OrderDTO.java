@@ -21,11 +21,17 @@ public class OrderDTO {
     @ApiModelProperty("交易类型 1购买 2出售")
     private Integer type;
 
+    @ApiModelProperty("单价")
+    private BigDecimal price;
+
     @ApiModelProperty("总价")
     private BigDecimal totalPrice;
 
-    @ApiModelProperty("单价")
-    private BigDecimal price;
+    @ApiModelProperty("币种编号")
+    private String currencyCode;
+
+    @ApiModelProperty("法币编号")
+    private String legalCurrencyCode;
 
     @ApiModelProperty("订单状态 1待支付 2待确认 3已取消 4申诉中 5已完成")
     private Integer status;

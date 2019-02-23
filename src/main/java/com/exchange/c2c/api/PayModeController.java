@@ -3,13 +3,11 @@ package com.exchange.c2c.api;
 import com.exchange.c2c.common.Result;
 import com.exchange.c2c.common.annotation.Login;
 import com.exchange.c2c.common.page.PageList;
-import com.exchange.c2c.common.util.ApiBeanUtils;
-import com.exchange.c2c.common.util.Assert;
-import com.exchange.c2c.common.util.ValidationUtils;
-import com.exchange.c2c.common.util.WebUtils;
+import com.exchange.c2c.common.util.*;
 import com.exchange.c2c.entity.PayMode;
 import com.exchange.c2c.enums.AccountTypeEnum;
 import com.exchange.c2c.enums.PayModeStatusEnum;
+import com.exchange.c2c.enums.VerifyModeEnum;
 import com.exchange.c2c.model.*;
 import com.exchange.c2c.service.ConfigService;
 import com.exchange.c2c.service.GoogleAuthService;
@@ -44,7 +42,8 @@ public class PayModeController {
     @PostMapping("/create")
     @ApiOperation(value = "添加支付方式", notes = "创建人: 李海峰")
     public Result<Integer> create(@Valid CreatePayModeForm form) {
-        PayMode payMode = buildPayMode(form);
+        verification(form);
+        PayMode payMode = ApiBeanUtils.copyProperties(form, PayMode::new);
         payMode.setStatus(PayModeStatusEnum.DISABLE.getValue());
         payMode.setCreateBy(WebUtils.getUserId());
         payMode.setCreateTime(LocalDateTime.now());
@@ -55,6 +54,11 @@ public class PayModeController {
     private void verification(CreatePayModeForm form) {
         if (Objects.equals(AccountTypeEnum.BANK_CARD.getValue(), form.getAccountType())) {
             ValidationUtils.validate(form, CreatePayModeForm.BankCard.class);
+        }
+
+        VerifyModeEnum verifyModeEnum = EnumUtils.toEnum(form.getVerifyMode(), VerifyModeEnum.class);
+        Objects.requireNonNull(verifyModeEnum);
+        switch (verifyModeEnum) {
         }
     }
 
@@ -82,7 +86,7 @@ public class PayModeController {
     }
 
     @Login
-    @PostMapping("/info")
+    @GetMapping("/info")
     @ApiOperation(value = "支付方式详情", notes = "创建人: 李海峰")
     public Result<PayModeDTO> info(@RequestParam @ApiParam("支付方式ID") Integer id) {
         val payMode = payModeService.findById(id);
@@ -92,7 +96,7 @@ public class PayModeController {
     }
 
     @Login
-    @PostMapping("/enable")
+    @GetMapping("/enable")
     @ApiOperation(value = "启用支付方式", notes = "创建人: 李海峰")
     public Result<?> enable(@RequestParam @ApiParam("支付方式ID") Integer id) {
         PayMode payMode = payModeService.findById(id);
@@ -103,7 +107,7 @@ public class PayModeController {
     }
 
     @Login
-    @PostMapping("/disable")
+    @GetMapping("/disable")
     @ApiOperation(value = "禁用支付方式", notes = "创建人: 李海峰")
     public Result<?> disable(@RequestParam @ApiParam("支付方式ID") Integer id) {
         PayMode payMode = payModeService.findById(id);

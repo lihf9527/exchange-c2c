@@ -18,10 +18,7 @@ import lombok.val;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -67,8 +64,8 @@ public class OrderController {
 
         BigDecimal totalPrice = advert.getPrice().multiply(form.getQuantity());
         BigDecimal quantity = form.getTotalPrice().divide(advert.getPrice(), 4, RoundingMode.DOWN);
-        Assert.isTrue(Objects.equals(form.getTotalPrice(), NumberUtils.format(totalPrice))
-                || Objects.equals(form.getQuantity(), quantity), "价格计算错误");
+        Assert.isTrue(Objects.equals(NumberUtils.format(form.getTotalPrice()), NumberUtils.format(totalPrice))
+                || Objects.equals(NumberUtils.format(form.getQuantity(), 4), quantity), "价格计算错误");
 
         boolean isBuyAd = Objects.equals(AdvertTypeEnum.BUY.getValue(), advert.getType());
 
@@ -115,7 +112,7 @@ public class OrderController {
     }
 
     @Login
-    @PostMapping("/info")
+    @GetMapping("/info")
     @ApiOperation(value = "订单详情", notes = "创建人: 李海峰")
     public Result<OrderInfoDTO> info(@ApiParam("订单ID") @RequestParam Integer id) {
         val order = orderService.findById(id);
@@ -140,7 +137,7 @@ public class OrderController {
     }
 
     @Login
-    @PostMapping("/cancel")
+    @GetMapping("/cancel")
     @ApiOperation(value = "取消订单", notes = "创建人: 李海峰")
     public Result<?> cancel(@ApiParam("订单ID") @RequestParam Integer id) {
         val order = orderService.findById(id);
@@ -162,7 +159,7 @@ public class OrderController {
     }
 
     @Login
-    @PostMapping("/receipts/confirm")
+    @GetMapping("/receipts/confirm")
     @ApiOperation(value = "确认收款", notes = "创建人: 李海峰")
     public Result<?> receiptsConfirm(@ApiParam("订单ID") @RequestParam Integer id) {
         Order order = orderService.findById(id);
@@ -173,7 +170,7 @@ public class OrderController {
     }
 
     @Login
-    @PostMapping("/unfinished")
+    @GetMapping("/unfinished")
     @ApiOperation(value = "未完成的订单", notes = "创建人: 李海峰")
     public Result<OrderInfoDTO> unfinished() {
         return Result.success(convertToOrderInfoDTO(orderService.getUnfinishedOrder(WebUtils.getUserId())));
