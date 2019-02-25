@@ -10,6 +10,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.validation.ConstraintViolationException;
@@ -56,6 +57,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public Result handler(NoHandlerFoundException e) {
         return Result.of(404, "Not Found", e.getMessage());
+    }
+
+    @ExceptionHandler
+    public Result handler(MaxUploadSizeExceededException e) {
+        return Result.failure("文件过大");
     }
 
     @ExceptionHandler

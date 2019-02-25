@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 @Data
 @ApiModel
 public class CreatePayModeForm {
-    @Size(message = "账户名长度不能大于20", max = 20)
+    @Size(message = "账户名长度不能大于100", max = 100)
     @NotEmpty(message = "账户名不能为空")
     @ApiModelProperty("账户名")
     private String accountName;

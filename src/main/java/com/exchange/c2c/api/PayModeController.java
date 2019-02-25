@@ -42,7 +42,7 @@ public class PayModeController {
     @PostMapping("/create")
     @ApiOperation(value = "添加支付方式", notes = "创建人: 李海峰")
     public Result<Integer> create(@Valid CreatePayModeForm form) {
-        verification(form);
+        verify(form);
         PayMode payMode = ApiBeanUtils.copyProperties(form, PayMode::new);
         payMode.setStatus(PayModeStatusEnum.DISABLE.getValue());
         payMode.setCreateBy(WebUtils.getUserId());
@@ -51,7 +51,7 @@ public class PayModeController {
         return Result.success(payMode.getId());
     }
 
-    private void verification(CreatePayModeForm form) {
+    private void verify(CreatePayModeForm form) {
         if (Objects.equals(AccountTypeEnum.BANK_CARD.getValue(), form.getAccountType())) {
             ValidationUtils.validate(form, CreatePayModeForm.BankCard.class);
         }

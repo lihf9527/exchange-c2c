@@ -21,4 +21,6 @@ public final class Constant {
     public static final String TIMEZONE_CN = "GMT+8";
 
     public static final String REGEXP_PHONE = "^1\\d{10}$";
+
+    public static final String REGEXP_EMAIL = "^[A-Za-z\\d]+([-_.][A-Za-z\\d]+)*@([A-Za-z\\d]+[-.])+[A-Za-z\\d]{2,4}$";
 }

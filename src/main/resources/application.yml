@@ -1,6 +1,18 @@
 spring:
   profiles:
     active: @spring.active@
+  servlet:
+    multipart:
+      max-file-size: 1
+      max-request-size: 5
+
+server:
+  port: 8080
+  servlet:
+    context-path: /c2c
+  tomcat:
+    max-swallow-size: -1
+
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
@@ -17,3 +29,9 @@ sms:
   account: I6352304
   password: k41aXfw5vJbea2
   url: http://intapi.sgap.253.com/send/json
+
+cors:
+  origins: "*"
+
+file:
+  dir: E:/
