@@ -34,4 +34,4 @@ cors:
   origins: "*"
 
 file:
-  dir: E:/
+  dir: E:/img

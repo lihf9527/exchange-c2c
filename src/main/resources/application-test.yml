@@ -1,17 +1,23 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://rm-j6czi0t5rf12wyj0i9o.mysql.rds.aliyuncs.com/alc-test?useUnicode=true&characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://rm-j6czi0t5rf12wyj0i9o.mysql.rds.aliyuncs.com/alc-dev?useUnicode=true&characterEncoding=utf8&useSSL=false
     username: root
     password: oYA67V5dNj5fZavd
   redis:
     host: 47.52.188.163
     port: 6379
     password: f8coin666
-    database: 3
+    database: 4
 
 logging:
-  level: info
-  level.com.exchange.c2c: info
-  path: logs/
+  level: debug
+  level.com.exchange.c2c: debug
+  path: /var/log/ALC/c2c
   file: c2c.log
+
+server:
+  port: 8091
+
+file:
+  dir: /data/upload

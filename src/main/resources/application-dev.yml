@@ -8,7 +8,7 @@ spring:
     host: 47.52.188.163
     port: 6379
     password: f8coin666
-    database: 3
+    database: 4
 
 logging:
   level: debug
